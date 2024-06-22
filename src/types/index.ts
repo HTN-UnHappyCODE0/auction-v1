@@ -56,4 +56,30 @@ export type ProductData = {
 	totalCount: number;
 };
 
+export type ProductDetailData = {
+	product_id: number;
+	product_name: string;
+	price: number;
+	auther_id: string;
+	description: string;
+	category: Category;
+	author: author;
+	productImages: ProductImages[];
+	tags: Tags[];
+	productAttributes: ProductAttributes[];
+};
+
+export type AuctionDetailData = {
+	auction_id: number;
+	product_id: number;
+	start_price: number;
+	price_step: number;
+	duration: number;
+	current_price: number;
+	sold_price: number;
+	user_id_win: string;
+	start_time: string;
+	end_time: string | null;
+};
+
 export type FilterType = Record<string, string[]>;

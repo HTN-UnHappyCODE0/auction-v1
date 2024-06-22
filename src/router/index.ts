@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/auth/LoginView.vue';
 import RegisterView from '../views/auth/RegisterView.vue';
 import ProductView from '../views/productView.vue';
+import AuctionView from '../views/AuctionView.vue';
+import AuctionLiveView from '../views/AuctionLiveView.vue';
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +29,8 @@ const router = createRouter({
 			name: 'product-view',
 			component: ProductView,
 		},
+		{path: '/auction', name: 'auction-view', component: AuctionView},
+		{path: '/aucionLive/:id', name: 'auction-live', component: AuctionLiveView},
 	],
 });
 

@@ -24,6 +24,7 @@ import {
 	PaginationPrev,
 } from '@/components/ui/pagination';
 import type {FilterType} from '@/types';
+import {convertCoin} from '@/components/func/convertCoin';
 import {ImageGridCalculator} from '@/components/func/imageGrid';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
@@ -79,7 +80,6 @@ const categories = computed(() => CategoryStore.categoryData);
 const filters = computed(() => FilterStore.FilterData);
 
 const open = ref(false);
-// const value = ref('');
 const inputproductname = ref('');
 const selectcategoryname = ref('');
 const selectedPriceRange = ref<string>('');
@@ -220,7 +220,7 @@ onMounted(async () => {
 							>
 								<div class="mb-2 flex flex-row items-start w-full">
 									<div class="flex flex-col items-start">
-										<router-link to="" class="whitespace-nowrap w-full text-lg text-ellipsis m-0 overflow-hidden">
+										<router-link to="" class="whitespace-nowrap w-full text-base text-ellipsis m-0 overflow-hidden">
 											<span>{{ item.product_name }}</span>
 										</router-link>
 										<p class="text-xs leading-4 whitespace-nowrap text-ellipsis m-0 overflow-hidden">
@@ -230,15 +230,16 @@ onMounted(async () => {
 										</p>
 									</div>
 								</div>
-								<div class="mb-2 flex flex-row items-end w-full">
+								<div class="mb-2 flex flex-row items-center w-full">
 									<div class="flex flex-col items-start w-3/5">
-										<p class="whitespace-nowrap w-full text-base text-ellipsis m-0 overflow-hidden">
-											<a href="">{{ item.author.author_name }} </a>
+										<p class="whitespace-nowrap w-full text-sm text-ellipsis m-0 overflow-hidden">
+											<span>{{ item.author.author_name }} </span>
 										</p>
 									</div>
-									<div class="items-end flex whitespace-nowrap text-lg flex-col w-2/5">
-										<p class="whitespace-nowrap m-0 text-ellipsis leading-4">
-											<span>{{ item.price }}</span> VND
+
+									<div class="flex whitespace-nowrap items-end flex-col w-2/5">
+										<p class="whitespace-nowrap m-0 text-ellipsis text-xs leading-4">
+											<span class="font-semibold text-base"> {{ convertCoin(item.price) }} </span> VND
 										</p>
 									</div>
 								</div>

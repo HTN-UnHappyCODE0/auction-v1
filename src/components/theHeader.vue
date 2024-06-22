@@ -88,20 +88,20 @@
 								</NavigationMenuContent>
 							</NavigationMenuItem>
 							<NavigationMenuItem>
-								<NavigationMenuTrigger>Auction</NavigationMenuTrigger>
+								<NavigationMenuTrigger> <RouterLink to="/auction">Auction</RouterLink></NavigationMenuTrigger>
 								<NavigationMenuContent>
 									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
 										<li class="row-span-3">
 											<NavigationMenuLink as-child>
-												<a
+												<RouterLink
+													to="/auction"
 													class="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted no-underline outline-none focus:shadow-md"
-													href="/"
 												>
 													<img
 														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/84bb9986262225.5d9fddfe07643.jpg"
 														class="h-full w-full"
 													/>
-												</a>
+												</RouterLink>
 											</NavigationMenuLink>
 										</li>
 

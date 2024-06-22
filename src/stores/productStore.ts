@@ -1,4 +1,4 @@
-import type {APIResponse, ProductData} from '@/types';
+import type {APIResponse, ProductData, ProductDetailData} from '@/types';
 import axios from '../plugins/axios';
 import {defineStore} from 'pinia';
 
@@ -12,10 +12,14 @@ interface ProductFilterParams {
 	subjects?: string[];
 	materials?: string[];
 }
+interface ProductParams {
+	id?: string;
+}
 
 export const useProductStore = defineStore('ProductStore', {
 	state: () => ({
 		productData: {} as ProductData,
+		ProductDetailData: {} as ProductDetailData,
 		loading: false,
 	}),
 
@@ -41,13 +45,40 @@ export const useProductStore = defineStore('ProductStore', {
 
 				// Cập nhật state với dữ liệu nhận được
 				this.productData = data.data;
-				console.log('PRODUCT DATA', this.productData);
 			} catch (error) {
 				console.error('Failed to fetch product data:', error);
 				throw error;
 			} finally {
 				this.loading = false;
 			}
+		},
+		// async getProductDetail({id}: ProductParams) {
+		// 	try {
+		// 		this.loading = true;
+
+		// 		const {data} = await axios.get<APIResponse<ProductDetailData>>(`/api/Product/${id}`);
+		// 		console;
+
+		// 		this.ProductDetailData = data.data;
+		// 	} catch (error) {
+		// 		console.error('Failed to fetch product detail:', error);
+		// 		throw error;
+		// 	} finally {
+		// 		this.loading = false;
+		// 	}
+		// },
+		async getProductDetail({id}: ProductParams) {
+			return new Promise<ProductDetailData>(async (resolve, reject) => {
+				try {
+					const {data} = await axios.get<ProductDetailData>(`/api/Product/${id}`);
+
+					this.ProductDetailData = data;
+
+					resolve(data);
+				} catch (error) {
+					reject(error);
+				}
+			});
 		},
 	},
 });
