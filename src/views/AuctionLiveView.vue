@@ -78,16 +78,6 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 	emblaMainApi.on('select', onSelect);
 	emblaMainApi.on('reInit', onSelect);
 });
-
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
-
-const defaultValue = 'item-1';
-
-const accordionItems = [
-	{value: 'item-1', title: 'Is it accessible?', content: 'Yes. It adheres to the WAI-ARIA design pattern.'},
-	{value: 'item-2', title: 'Is it unstyled?', content: "Yes. It's unstyled by default, giving you freedom over the look and feel."},
-	{value: 'item-3', title: 'Can it be animated?', content: 'Yes! You can use the transition prop to configure the animation.'},
-];
 </script>
 <template>
 	<TheHeader />
@@ -137,11 +127,17 @@ const accordionItems = [
 									<div class="w-auto">
 										<Carousel class="relative w-full max-w-md" @init-api="(val) => (emblaMainApi = val)">
 											<CarouselContent>
-												<CarouselItem v-for="(_, index) in 10" :key="index">
+												<CarouselItem v-for="(image, index) in productDetail.productImages" :key="index">
 													<div class="p-1">
 														<Card>
 															<CardContent class="flex aspect-square items-center justify-center p-6">
-																<span class="text-4xl font-semibold">{{ index + 1 }}</span>
+																<span class="text-4xl font-semibold">
+																	<img
+																		:src="image.image_url"
+																		:alt="'Image ' + (index + 1)"
+																		class="object-cover w-full h-full"
+																	/>
+																</span>
 															</CardContent>
 														</Card>
 													</div>
@@ -154,15 +150,20 @@ const accordionItems = [
 										<Carousel class="relative w-full max-w-md" @init-api="(val) => (emblaThumbnailApi = val)">
 											<CarouselContent class="flex gap-1 ml-0">
 												<CarouselItem
-													v-for="(_, index) in 10"
+													v-for="(image, index) in productDetail.productImages"
 													:key="index"
 													class="pl-0 basis-1/4 cursor-pointer"
 													@click="onThumbClick(index)"
 												>
 													<div class="p-1" :class="index === selectedIndex ? '' : 'opacity-50'">
 														<Card>
-															<CardContent class="flex aspect-square items-center justify-center p-6">
-																<span class="text-4xl font-semibold">{{ index + 1 }}</span>
+															<CardContent class="flex aspect-square items-center justify-center p-2">
+																<span class=""
+																	><img
+																		:src="image.image_url"
+																		:alt="'Image ' + (index + 1)"
+																		class="object-cover w-full h-full"
+																/></span>
 															</CardContent>
 														</Card>
 													</div>
@@ -172,15 +173,46 @@ const accordionItems = [
 									</div>
 								</div>
 
-								<div class="">
-									<Accordion type="single" class="w-full" collapsible :default-value="defaultValue">
+								<div v-if="productDetail" class="overflow-hidden relative mt-8 pt-8 border-t mx-2">
+									<!-- <Accordion type="single" class="w-full" collapsible :default-value="defaultValue">
 										<AccordionItem v-for="item in accordionItems" :key="item.value" :value="item.value">
 											<AccordionTrigger>{{ item.title }}</AccordionTrigger>
 											<AccordionContent>
 												{{ item.content }}
 											</AccordionContent>
 										</AccordionItem>
-									</Accordion>
+									</Accordion> -->
+									<h5 class="mb-4 font-semibold text-lg">Item Details</h5>
+									<div class="p-0 mb-8">
+										<h1 class="mb-2 text-gray-500 text-lg">Description</h1>
+										<span class="whitespace-pre-wrap m-0 relative left-0"
+											><div class="mb-2 ml-1">{{ productDetail.description }}</div>
+											<h1 class="mb-2 text-gray-500 text-lg">Product attributes</h1>
+
+											<div class="">
+												Author:
+												<span class="font-normal">{{
+													productDetail.author && productDetail.author.author_name
+												}}</span>
+											</div>
+											<div class="">
+												Category:
+												<span class="font-normal">{{
+													productDetail.category && productDetail.category.category_name
+												}}</span>
+											</div>
+											<div
+												v-for="(attribute, index) in productDetail.productAttributes"
+												:key="attribute.attribute_id"
+												class="ml-1"
+											>
+												<div class="">
+													{{ attribute.attribute_name }}:
+													<span class="font-normal">{{ attribute.attribute_label }}</span>
+												</div>
+											</div></span
+										>
+									</div>
 								</div>
 							</div>
 							<div class="col-span-2 flex flex-col relative border overflow-hidden">
@@ -226,7 +258,7 @@ const accordionItems = [
 						</div>
 						<button
 							@click="incrementPrice"
-							class="w-full text-base font-semibold h-10 tracking-widest border rounded-lg cursor-pointer inline-flex flex-col justify-center items-center px-6 text-center align-middle whitespace-nowrap bg-cyan-800 text-white"
+							class="w-full text-base font-semibold h-10 tracking-widest border rounded-lg cursor-pointer inline-flex flex-col justify-center items-center px-6 text-center align-middle whitespace-nowrap bg-cyan-800 text-white active:scale-95"
 						>
 							<div>Bid</div>
 						</button>

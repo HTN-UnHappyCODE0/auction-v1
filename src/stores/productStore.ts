@@ -52,24 +52,11 @@ export const useProductStore = defineStore('ProductStore', {
 				this.loading = false;
 			}
 		},
-		// async getProductDetail({id}: ProductParams) {
-		// 	try {
-		// 		this.loading = true;
 
-		// 		const {data} = await axios.get<APIResponse<ProductDetailData>>(`/api/Product/${id}`);
-		// 		console;
-
-		// 		this.ProductDetailData = data.data;
-		// 	} catch (error) {
-		// 		console.error('Failed to fetch product detail:', error);
-		// 		throw error;
-		// 	} finally {
-		// 		this.loading = false;
-		// 	}
-		// },
 		async getProductDetail({id}: ProductParams) {
 			return new Promise<ProductDetailData>(async (resolve, reject) => {
 				try {
+					this.loading = true;
 					const {data} = await axios.get<ProductDetailData>(`/api/Product/${id}`);
 
 					this.ProductDetailData = data;

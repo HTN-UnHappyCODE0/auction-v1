@@ -43,7 +43,7 @@ export const useAuctionStore = defineStore('AuctionStore', {
 		async getAuctionDetail({id}: AuctionParams) {
 			return new Promise<AuctionDetailData>(async (resolve, reject) => {
 				try {
-					const {data} = await axios.get<AuctionDetailData>(`auction?id=${id}`);
+					const {data} = await axios.get<AuctionDetailData>(`/auction?id=${id}`);
 
 					this.AuctionDetailData = data;
 

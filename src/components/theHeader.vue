@@ -1,7 +1,7 @@
 <template>
 	<div class="block">
 		<div class="relative z-10 w-full flex flex-col">
-			<div class="w-full h-11 flex items-center justify-end border border-b">
+			<div class="w-full h-11 flex items-center justify-end border-b">
 				<RouterLink
 					to="/auth/login"
 					class="border-r-0 border-white px-3 text-base font-semibold border-r-black hover:underline hover:text-blue-800"
@@ -15,7 +15,7 @@
 					register
 				</RouterLink>
 			</div>
-			<div class="h-16 px-6 flex justify-between items-center border border-b">
+			<div class="h-16 px-6 flex justify-between items-center border-b">
 				<Logo class="w-72" />
 				<div class="flex items-center">
 					<NavigationMenu>

@@ -25,7 +25,6 @@ import {
 } from '@/components/ui/pagination';
 import type {FilterType} from '@/types';
 import {convertCoin} from '@/components/func/convertCoin';
-import {ImageGridCalculator} from '@/components/func/imageGrid';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const currentPage = ref(1);
