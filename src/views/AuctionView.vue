@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import {useAuctionStore} from '@/stores/auctionStore';
 import TheHeader from '../components/theHeader.vue';
-import {RouterLink} from 'vue-router';
+import {RouterLink, useRouter} from 'vue-router';
 import {useGlobalLoader} from 'vue-global-loader';
 import {computed, onMounted} from 'vue';
 import moment from 'moment';
+
 const AuctionStore = useAuctionStore();
-const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
+const {displayLoader, destroyLoader} = useGlobalLoader();
+const router = useRouter();
 
 const formatDate = (date: any) => {
 	return moment(date).format('HH:mm - DD/MM/YYYY');
 };
 
-const fetchauctions = async () => {
+const fetchAuctions = async () => {
 	try {
 		displayLoader();
 		await AuctionStore.getAuction();
@@ -25,10 +27,21 @@ const fetchauctions = async () => {
 
 const auctions = computed(() => AuctionStore.AuctionData);
 onMounted(async () => {
-	await Promise.all([fetchauctions()]);
+	await fetchAuctions();
 });
+
+const openWindow = (event: Event, auctionId: string) => {
+	event.preventDefault();
+
+	const url = router.resolve({
+		name: 'auction-live',
+		params: {id: auctionId},
+	}).href;
+
+	window.open(url, '_blank', 'width=1170,height=880');
+};
 </script>
-<!-- <Moment date={data?.created} format='HH:mm - DD/MM/YYYY'></Moment>, -->
+
 <template>
 	<TheHeader />
 	<div class="w-full m-5">
@@ -68,8 +81,9 @@ onMounted(async () => {
 							</RouterLink>
 
 							<span
-								class="z-10 px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"
-								>LIVE
+								class="px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"
+							>
+								LIVE
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									viewBox="0 0 576 512"
@@ -103,11 +117,13 @@ onMounted(async () => {
 									</div>
 								</span>
 								<div class="h-6 flex justify-end items-center">
-									<RouterLink
-										target="_blank"
-										:to="{name: 'auction-live', params: {id: item.auction_id}}"
+									<!-- Sử dụng sự kiện click để mở cửa sổ mới với kích thước cụ thể -->
+									<a
+										href="#"
+										@click="(event) => openWindow(event, item.auction_id.toString())"
 										class="cursor-pointer items-center inline-flex text-red-500 hover:underline"
-										>Bid now
+									>
+										Bid now
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											viewBox="0 0 256 512"
@@ -119,7 +135,7 @@ onMounted(async () => {
 												d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z"
 											/>
 										</svg>
-									</RouterLink>
+									</a>
 								</div>
 							</div>
 						</div>

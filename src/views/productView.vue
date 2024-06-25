@@ -219,7 +219,10 @@ onMounted(async () => {
 							>
 								<div class="mb-2 flex flex-row items-start w-full">
 									<div class="flex flex-col items-start">
-										<router-link to="" class="whitespace-nowrap w-full text-base text-ellipsis m-0 overflow-hidden">
+										<router-link
+											:to="{name: 'product-detail', params: {id: item.product_id}}"
+											class="whitespace-nowrap w-full text-base text-ellipsis m-0 overflow-hidden hover:underline"
+										>
 											<span>{{ item.product_name }}</span>
 										</router-link>
 										<p class="text-xs leading-4 whitespace-nowrap text-ellipsis m-0 overflow-hidden">

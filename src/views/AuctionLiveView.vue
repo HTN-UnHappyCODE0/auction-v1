@@ -3,7 +3,7 @@ import TheHeader from '../components/theHeader.vue';
 import Logo from '@/components/iconLogo.vue';
 import {useWebSocketStore} from '@/stores/websocketStore';
 import {useAuctionStore} from '@/stores/auctionStore';
-import {convertCoin} from '@/components/func/convertCoin';
+import {convertCoin, price} from '@/components/func/convertCoin';
 import {useProductStore} from '@/stores/productStore';
 import {computed, onMounted, ref} from 'vue';
 import {useGlobalLoader} from 'vue-global-loader';
@@ -45,15 +45,23 @@ const productDetail = computed(() => productStore.ProductDetailData);
 const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
 
 onMounted(async () => {
-	await Promise.all([fetchdetailauctions(), fetchdetailproducts()]);
+	await Promise.all([
+		fetchdetailauctions(),
+		fetchdetailproducts(),
+		websocketStore.connect('wss://bidding2024.group11tlu.uk/ws?userJoin=Nam&auctionId=2'),
+	]);
 	currentPrice.value = auctionDetail.value.start_price;
-	websocketStore.connect('wss://echo.websocket.events');
 });
 
 const incrementPrice = () => {
 	currentPrice.value += auctionDetail.value.price_step;
 	const convertedPrice = convertCoin(currentPrice.value);
-	websocketStore.sendMessage(convertedPrice);
+	const message = {
+		name: '',
+		action: 'bid',
+		price: '10$',
+	};
+	websocketStore.sendMessage(JSON.stringify(message));
 };
 
 const emblaMainApi = ref<CarouselApi>();
@@ -107,13 +115,69 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 
 					<h2>Bidhaus</h2>
 				</div>
-				<div class="border p-6 bg-white">
+				<div class="border p-6 mb-4 bg-white">
 					<span class="text-base font-normal">548 of 1036 Lots Remaining</span>
 					<div class="w-full mt-1 bg-gray-200 -top-0 left-0 rounded-full h-2">
-						<div class="bg-gray-700 h-2 rounded-full" style="width: 80%"></div>
+						<div class="bg-gray-700 h-2 rounded-full" style="width: 10%"></div>
 					</div>
 				</div>
-				<div></div>
+				<!-- <div class="border p-6 bg-white"></div> -->
+				<div class="h-full w-full relative border overflow-hidden box-border bg-white">
+					<div class="h-full overflow-y-auto relative">
+						<div class="w-full h-full absolute top-0">
+							<div class="mt-0 box-border scroll-py-96">
+								<div class="">
+									<div class="min-h-32 py-4 px-6 flex flex-col border-l-4 border-l-red-500 border-b bg-white">
+										<div class="flex">
+											<div class="min-h-20 min-w-20 inline-flex items-center justify-center mr-4 relative">
+												<div class="absolute right-1 top-1 hidden"></div>
+												<img
+													:src="productDetail.productImages && productDetail.productImages[0].image_url"
+													alt="Image 1"
+												/>
+											</div>
+											<div class="flex flex-col">
+												<span class="text-red-500">Live now</span>
+												<a
+													href=""
+													class="overflow-hidden text-sm whitespace-normal mb-1 cursor-pointer hover:underline"
+													>{{ productDetail.product_name }}</a
+												>
+												<span class="flex items-center"
+													><span class="inline-flex items-center">10$</span> <span class="">(biding)</span></span
+												>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div v-for="index in 7" :key="index" class="item">
+									<div class="min-h-32 py-4 px-6 flex flex-col border-l-4 border-b bg-white opacity-50">
+										<div class="flex">
+											<div class="min-h-20 min-w-20 inline-flex items-center justify-center mr-4 relative">
+												<div class="absolute right-1 top-1 hidden"></div>
+												<img
+													:src="productDetail.productImages && productDetail.productImages[0]?.image_url"
+													alt="Image 1"
+													v-if="productDetail.productImages && productDetail.productImages[0]?.image_url"
+												/>
+											</div>
+											<div class="flex flex-col">
+												<!-- <span class="text-red-500">Live now</span> -->
+												<a href="#" class="overflow-hidden text-sm whitespace-normal mb-1 cursor-pointer">
+													{{ productDetail.product_name }}
+												</a>
+												<span class="flex items-center">
+													<span class="inline-flex items-center">10$</span>
+													<span class="">(bidding)</span>
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</section>
 			<section class="h-full w-full pl-5">
 				<div class="grid grid-rows-10 h-full">
@@ -147,7 +211,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 											<CarouselNext />
 										</Carousel>
 
-										<Carousel class="relative w-full max-w-md" @init-api="(val) => (emblaThumbnailApi = val)">
+										<Carousel class="relative w-full max-w-md" @init-api="(val: any) => (emblaThumbnailApi = val)">
 											<CarouselContent class="flex gap-1 ml-0">
 												<CarouselItem
 													v-for="(image, index) in productDetail.productImages"

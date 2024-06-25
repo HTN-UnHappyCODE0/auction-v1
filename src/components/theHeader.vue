@@ -1,3 +1,63 @@
+<script setup lang="ts">
+import {RouterLink, useRouter} from 'vue-router';
+import Logo from '@/components/iconLogo.vue';
+import {Search} from 'lucide-vue-next';
+import {Input} from '@/components/ui/input';
+import ListItem from './ui/listItem.vue';
+
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuItem,
+	NavigationMenuLink,
+	NavigationMenuList,
+	NavigationMenuTrigger,
+	navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import {useUserStore} from '@/stores/userStore';
+import {useGlobalLoader} from 'vue-global-loader';
+import {computed, onMounted} from 'vue';
+
+const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
+const userStore = useUserStore();
+
+const fetchUserInfo = async () => {
+	try {
+		displayLoader();
+		await userStore.getUserInfo;
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
+
+const userinfo = computed(() => userStore.UserData);
+
+const components: {title: string; href: string}[] = [
+	{
+		title: 'Style',
+		href: '/api/Product/filter?styles=fine_art',
+	},
+	{
+		title: 'Subject',
+		href: '/docs/primitives/hover-card',
+	},
+	{
+		title: 'Progress',
+		href: '/docs/primitives/progress',
+	},
+
+	{
+		title: 'Medium',
+		href: '/docs/primitives/scroll-area',
+	},
+];
+
+onMounted(async () => {
+	await Promise.all([fetchUserInfo()]);
+});
+</script>
 <template>
 	<div class="block">
 		<div class="relative z-10 w-full flex flex-col">
@@ -58,7 +118,7 @@
 								</NavigationMenuContent>
 							</NavigationMenuItem>
 							<NavigationMenuItem>
-								<NavigationMenuTrigger>Photography</NavigationMenuTrigger>
+								<NavigationMenuTrigger> <router-link to="/product">Photography</router-link></NavigationMenuTrigger>
 								<NavigationMenuContent>
 									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
 										<li class="row-span-3">
@@ -88,34 +148,7 @@
 								</NavigationMenuContent>
 							</NavigationMenuItem>
 							<NavigationMenuItem>
-								<NavigationMenuTrigger> <RouterLink to="/auction">Auction</RouterLink></NavigationMenuTrigger>
-								<NavigationMenuContent>
-									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
-										<li class="row-span-3">
-											<NavigationMenuLink as-child>
-												<RouterLink
-													to="/auction"
-													class="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted no-underline outline-none focus:shadow-md"
-												>
-													<img
-														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/84bb9986262225.5d9fddfe07643.jpg"
-														class="h-full w-full"
-													/>
-												</RouterLink>
-											</NavigationMenuLink>
-										</li>
-
-										<li class="grid gap-3 p-4 md:grid-cols-4">
-											<ListItem
-												v-for="component in components"
-												:key="component.title"
-												:title="component.title"
-												:href="component.href"
-											>
-											</ListItem>
-										</li>
-									</ul>
-								</NavigationMenuContent>
+								<NavigationMenuLink href="/auction" :class="navigationMenuTriggerStyle()"> Auction </NavigationMenuLink>
 							</NavigationMenuItem>
 						</NavigationMenuList>
 					</NavigationMenu>
@@ -130,40 +163,3 @@
 		</div>
 	</div>
 </template>
-<script setup lang="ts">
-import {RouterLink, useRouter} from 'vue-router';
-import Logo from '@/components/iconLogo.vue';
-import {Search} from 'lucide-vue-next';
-import {Input} from '@/components/ui/input';
-import ListItem from './ui/listItem.vue';
-
-import {
-	NavigationMenu,
-	NavigationMenuContent,
-	NavigationMenuItem,
-	NavigationMenuLink,
-	NavigationMenuList,
-	NavigationMenuTrigger,
-	navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-
-const components: {title: string; href: string}[] = [
-	{
-		title: 'Style',
-		href: '/docs/primitives/alert-dialog',
-	},
-	{
-		title: 'Subject',
-		href: '/docs/primitives/hover-card',
-	},
-	{
-		title: 'Progress',
-		href: '/docs/primitives/progress',
-	},
-
-	{
-		title: 'Medium',
-		href: '/docs/primitives/scroll-area',
-	},
-];
-</script>
