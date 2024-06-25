@@ -148,7 +148,9 @@ onMounted(async () => {
 								</NavigationMenuContent>
 							</NavigationMenuItem>
 							<NavigationMenuItem>
-								<NavigationMenuLink href="/auction" :class="navigationMenuTriggerStyle()"> Auction </NavigationMenuLink>
+								<NavigationMenuLink :class="navigationMenuTriggerStyle()">
+									<router-link to="/auction">Auction</router-link>
+								</NavigationMenuLink>
 							</NavigationMenuItem>
 						</NavigationMenuList>
 					</NavigationMenu>
