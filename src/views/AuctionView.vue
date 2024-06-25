@@ -31,14 +31,16 @@ onMounted(async () => {
 });
 
 const openWindow = (event: Event, auctionId: string) => {
-	event.preventDefault();
+	event.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
 
+	// Tạo URL từ router với tên route và tham số
 	const url = router.resolve({
-		name: 'auction-live',
-		params: {id: auctionId},
+		name: 'auction-live', // Thay bằng tên của route của bạn
+		params: {id: auctionId}, // Tham số route
 	}).href;
 
-	window.open(url, '_blank', 'width=1170,height=880');
+	// Mở cửa sổ mới với kích thước cụ thể
+	window.open(url, '_blank', 'width=1370,height=880');
 };
 </script>
 
@@ -118,9 +120,9 @@ const openWindow = (event: Event, auctionId: string) => {
 								</span>
 								<div class="h-6 flex justify-end items-center">
 									<!-- Sử dụng sự kiện click để mở cửa sổ mới với kích thước cụ thể -->
-									<a
-										href="#"
-										@click="(event) => openWindow(event, item.auction_id.toString())"
+									<RouterLink
+										to="/"
+										@click="(event: any) => openWindow(event, item.auction_id.toString())"
 										class="cursor-pointer items-center inline-flex text-red-500 hover:underline"
 									>
 										Bid now
@@ -135,7 +137,7 @@ const openWindow = (event: Event, auctionId: string) => {
 												d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l128-128z"
 											/>
 										</svg>
-									</a>
+									</RouterLink>
 								</div>
 							</div>
 						</div>
