@@ -1,14 +1,19 @@
-// src/stores/webSocketStore.ts
 import {defineStore} from 'pinia';
+
+interface WebSocketMessage {
+	Message: string;
+	CurrentPrice: number;
+}
 
 export const useWebSocketStore = defineStore('webSocket', {
 	state: () => ({
 		websocket: null as WebSocket | null,
 		isConnected: false as boolean,
 		messages: [] as string[],
+		currents: [] as number[],
 	}),
 	actions: {
-		connect(this: any, url: string) {
+		connect(url: string) {
 			this.websocket = new WebSocket(url);
 
 			this.websocket.onopen = () => {
@@ -23,14 +28,8 @@ export const useWebSocketStore = defineStore('webSocket', {
 
 			this.websocket.onmessage = (event: MessageEvent) => {
 				console.log('Received:', event.data);
-				const newMessage = JSON.parse(event.data);
-				// console.log('newMessage:', newMessage.Message);
-				// console.log('this.messages:', this.messages[this.messages.length - 1]);
-
-				if (newMessage.Message !== this.messages[this.messages.length - 1]) {
-					this.messages.push(newMessage.Message);
-				}
-				// this.messages.push(`Received: ${JSON.parse(event.data).Message}`);
+				const newMessage: WebSocketMessage = JSON.parse(event.data);
+				this.processMessage(newMessage);
 			};
 
 			this.websocket.onerror = (error: any) => {
@@ -38,19 +37,27 @@ export const useWebSocketStore = defineStore('webSocket', {
 			};
 		},
 
-		disconnect(this: any) {
+		disconnect() {
 			if (this.websocket) {
 				this.websocket.close();
 				this.websocket = null;
 			}
 		},
 
-		sendMessage(this: any, message: string) {
+		sendMessage(message: string) {
 			if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
 				this.websocket.send(message);
-				// this.messages.push(`Sent: ${message}`);
 			} else {
 				console.error('WebSocket is not connected');
+			}
+		},
+
+		processMessage(message: WebSocketMessage) {
+			if (message.Message !== this.messages[this.messages.length - 1]) {
+				this.messages.push(message.Message);
+			}
+			if (message.CurrentPrice !== this.currents[this.currents.length - 1]) {
+				this.currents.push(message.CurrentPrice);
 			}
 		},
 	},

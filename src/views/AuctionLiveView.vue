@@ -5,7 +5,7 @@ import {useWebSocketStore} from '@/stores/websocketStore';
 import {useAuctionStore} from '@/stores/auctionStore';
 import {convertCoin, price} from '@/components/func/convertCoin';
 import {useProductStore} from '@/stores/productStore';
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {useGlobalLoader} from 'vue-global-loader';
 import {useRoute} from 'vue-router';
 import {watchOnce} from '@vueuse/core';
@@ -54,12 +54,14 @@ onMounted(async () => {
 });
 
 const incrementPrice = () => {
+	if (!websocketStore.isConnected) {
+		console.error('Cannot bid: WebSocket is not connected');
+		return;
+	}
 	currentPrice.value += auctionDetail.value.price_step;
-	const convertedPrice = convertCoin(currentPrice.value);
 	const message = {
 		name: '',
 		action: 'bid',
-		price: '10$',
 	};
 	websocketStore.sendMessage(JSON.stringify(message));
 };
@@ -86,9 +88,28 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 	emblaMainApi.on('select', onSelect);
 	emblaMainApi.on('reInit', onSelect);
 });
+
+const translateY = ref(0);
+const displayedPrices = ref<number[]>([]);
+
+const latestCurrent = computed(() => {
+	return websocketStore.currents.length > 0 ? websocketStore.currents[websocketStore.currents.length - 1] : null;
+});
+
+watch(latestCurrent, (newVal, oldVal) => {
+	if (newVal !== null) {
+		displayedPrices.value = [newVal, ...displayedPrices.value];
+
+		translateY.value = -100;
+		setTimeout(() => {
+			translateY.value = 0;
+			displayedPrices.value = [newVal];
+		}, 500);
+	}
+});
 </script>
 <template>
-	<TheHeader />
+	<!-- <TheHeader /> -->
 	<div class="max-w-7xl mt-1 mx-auto h-screen">
 		<div class="h-full flex flex-row">
 			<section class="w-96 py-4 px-6 flex flex-col bg-gray-200">
@@ -137,20 +158,25 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 												/>
 											</div>
 											<div class="flex flex-col">
-												<span class="text-red-500">Live now</span>
-												<a
-													href=""
+												<span v-if="websocketStore.isConnected" class="text-red-500">Live now</span>
+
+												<router-link
+													:to="{name: 'auction-detail', params: {id: auctionId}}"
 													class="overflow-hidden text-sm whitespace-normal mb-1 cursor-pointer hover:underline"
-													>{{ productDetail.product_name }}</a
+													>{{ productDetail.product_name }}</router-link
 												>
-												<span class="flex items-center"
-													><span class="inline-flex items-center">10$</span> <span class="">(biding)</span></span
-												>
+												<span class="flex flex-col items-start text-sm font-medium"
+													><span v-if="!websocketStore.isConnected" class="text-gray-900">Sold</span
+													><span class="inline-flex items-center" v-for="(price, index) in displayedPrices"
+														>{{ convertCoin(price) }} VND</span
+													>
+													<!-- <span class="">(10 bids)</span> -->
+												</span>
 											</div>
 										</div>
 									</div>
 								</div>
-								<div v-for="index in 7" :key="index" class="item">
+								<!-- <div v-for="index in 7" :key="index" class="item">
 									<div class="min-h-32 py-4 px-6 flex flex-col border-l-4 border-b bg-white opacity-50">
 										<div class="flex">
 											<div class="min-h-20 min-w-20 inline-flex items-center justify-center mr-4 relative">
@@ -162,7 +188,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 												/>
 											</div>
 											<div class="flex flex-col">
-												<!-- <span class="text-red-500">Live now</span> -->
+												<span class="text-red-500">Live now</span>
 												<a href="#" class="overflow-hidden text-sm whitespace-normal mb-1 cursor-pointer">
 													{{ productDetail.product_name }}
 												</a>
@@ -173,7 +199,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 											</div>
 										</div>
 									</div>
-								</div>
+								</div> -->
 							</div>
 						</div>
 					</div>
@@ -284,20 +310,25 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 									class="overflow-hidden absolute max-w-full left-0 right-0 bottom-0 mx-3"
 									style="min-height: 957px; max-width: 957px"
 								>
-									<ul class="overflow-hidden flex flex-col absolute left-0 right-0 bottom-0">
-										<li
-											v-for="(msg, index) in websocketStore.messages"
-											:key="index"
-											class="mb-3 overflow-hidden relative block w-full opacity-100"
-										>
-											<div class="text-left">
-												<span
-													class="text-sm text-black inline-block leading-5 tracking-wider font-normal border border-gray-700 rounded-full px-5 py-2"
-													><span class="inline-flex items-center">{{ msg }}</span
-													>: Competing Bid</span
-												>
-											</div>
-										</li>
+									<ul class="notification-list overflow-hidden flex flex-col-reverse absolute left-0 right-0 bottom-0">
+										<transition-group name="notification-item" tag="li">
+											<li
+												v-for="(msg, index) in websocketStore.messages"
+												:key="index"
+												:class="['notification-item', {'notification-won': msg.includes('won')}]"
+												class="mb-3 overflow-hidden relative block w-full opacity-100"
+											>
+												<div class="text-left">
+													<span
+														:class="['notification-item-mess', {'notification-won-mess': msg.includes('won')}]"
+														class="text-sm inline-block leading-5 tracking-wider font-normal border border-gray-100 rounded-full px-5 py-2"
+													>
+														<span class="inline-flex items-center">{{ msg }}</span
+														>: Competing Bid
+													</span>
+												</div>
+											</li>
+										</transition-group>
 									</ul>
 								</div>
 							</div>
@@ -315,14 +346,29 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 								>
 							</div>
 						</div>
-						<div class="mb-4 border flex rounded-lg overflow-hidden px-4 py-3 bg-white justify-end">
-							<div class="h-14 relative overflow-hidden font-medium text-5xl items-center">
-								<span> {{ convertCoin(currentPrice) }} VND</span>
+						<div class="relative h-16 bg-white rounded-lg">
+							<div
+								v-if="latestCurrent !== null"
+								class="absolute w-full h-full flex items-center justify-end overflow-hidden pr-4"
+							>
+								<div
+									v-for="(price, index) in displayedPrices"
+									:key="index"
+									:style="{transform: `translateY(${translateY}px)`, transition: 'transform 0.5s ease'}"
+									class="absolute w-full flex justify-end text-5xl font-medium"
+								>
+									{{ convertCoin(price) }} VND
+								</div>
 							</div>
 						</div>
 						<button
 							@click="incrementPrice"
-							class="w-full text-base font-semibold h-10 tracking-widest border rounded-lg cursor-pointer inline-flex flex-col justify-center items-center px-6 text-center align-middle whitespace-nowrap bg-cyan-800 text-white active:scale-95"
+							:disabled="!websocketStore.isConnected"
+							:class="{
+								'bg-cyan-800 text-white active:scale-95 ': websocketStore.isConnected,
+								'bg-gray-500 text-gray-200': !websocketStore.isConnected,
+							}"
+							class="w-full text-base font-semibold h-10 tracking-widest border rounded-lg cursor-pointer inline-flex flex-col justify-center items-center px-6 text-center align-middle whitespace-nowrap mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							<div>Bid</div>
 						</button>
@@ -332,3 +378,27 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 		</div>
 	</div>
 </template>
+<style scoped>
+.notification-item {
+	transition: transform 0.3s ease;
+}
+
+.notification-list {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.notification-item-mess {
+	color: rgb(0 0 0 / var(--tw-text-opacity));
+	--tw-bg-opacity: 1;
+	background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+.notification-won-mess {
+	border-color: rgb(240, 70, 70);
+	color: rgb(240, 70, 70);
+	background-color: white;
+}
+
+.notification-won {
+}
+</style>

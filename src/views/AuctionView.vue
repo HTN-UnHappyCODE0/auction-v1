@@ -27,19 +27,15 @@ const fetchAuctions = async () => {
 
 const auctions = computed(() => AuctionStore.AuctionData);
 onMounted(async () => {
-	await fetchAuctions();
+	await Promise.all([fetchAuctions()]);
 });
 
 const openWindow = (event: Event, auctionId: string) => {
-	event.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
-
-	// Tạo URL từ router với tên route và tham số
+	event.preventDefault();
 	const url = router.resolve({
-		name: 'auction-live', // Thay bằng tên của route của bạn
-		params: {id: auctionId}, // Tham số route
+		name: 'auction-live',
+		params: {id: auctionId},
 	}).href;
-
-	// Mở cửa sổ mới với kích thước cụ thể
 	window.open(url, '_blank', 'width=1370,height=880');
 };
 </script>
@@ -119,7 +115,6 @@ const openWindow = (event: Event, auctionId: string) => {
 									</div>
 								</span>
 								<div class="h-6 flex justify-end items-center">
-									<!-- Sử dụng sự kiện click để mở cửa sổ mới với kích thước cụ thể -->
 									<RouterLink
 										to="/"
 										@click="(event: any) => openWindow(event, item.auction_id.toString())"
