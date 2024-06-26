@@ -17,14 +17,28 @@ import {
 import {useUserStore} from '@/stores/userStore';
 import {useGlobalLoader} from 'vue-global-loader';
 import {computed, onMounted} from 'vue';
-
+import {Button} from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuPortal,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
 
 const fetchUserInfo = async () => {
 	try {
 		displayLoader();
-		await userStore.getUserInfo;
+		await userStore.getUserInfo();
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -62,26 +76,82 @@ onMounted(async () => {
 	<div class="block">
 		<div class="relative z-10 w-full flex flex-col">
 			<div class="w-full h-11 flex items-center justify-end border-b">
-				<RouterLink
-					to="/auth/login"
-					class="border-r-0 border-white px-3 text-base font-semibold border-r-black hover:underline hover:text-blue-800"
-				>
-					log in
-				</RouterLink>
-				<RouterLink
-					to="/auth/register"
-					class="border-l-2 border-white px-3 text-base font-semibold border-l-black hover:underline hover:text-blue-800"
-				>
-					register
-				</RouterLink>
+				<!-- <div>
+					<RouterLink
+						to="/auth/login"
+						class="border-r-0 border-white px-3 text-base font-semibold border-r-black hover:underline hover:text-blue-800"
+					>
+						log in
+					</RouterLink>
+					<RouterLink
+						to="/auth/register"
+						class="border-l-2 border-white px-3 text-base font-semibold border-l-black hover:underline hover:text-blue-800"
+					>
+						register
+					</RouterLink>
+				</div> -->
+				<div class="pr-5">
+					<div class="flex items-center">
+						<a class="flex items-center" href=""
+							><div class="w-10 h-10 rounded-full flex">
+								<div class="absolute">
+									<div class="bg-inherit">
+										<img
+											:src="
+												userinfo.userProfile?.avatar_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+											"
+											alt=""
+											class="w-10 h-10 block object-cover rounded-full pointer-events-none"
+										/>
+									</div>
+								</div>
+							</div>
+
+							<DropdownMenu>
+								<DropdownMenuTrigger as-child>
+									<Button class="border-none bg-inherit shadow-none text-black hover:bg-inherit">
+										{{ userinfo.userProfile?.fullname }}
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent class="w-56 mr-5">
+									<DropdownMenuLabel>My Account</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuGroup>
+										<router-link :to="{name: 'auction-detail', params: {id: 1}}"
+											><DropdownMenuItem>
+												<span>Profile</span>
+												<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+											</DropdownMenuItem></router-link
+										>
+
+										<DropdownMenuItem>
+											<span>Bidding</span>
+											<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+										</DropdownMenuItem>
+										<DropdownMenuItem>
+											<span>Settings</span>
+											<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+										</DropdownMenuItem>
+									</DropdownMenuGroup>
+
+									<DropdownMenuSeparator />
+									<DropdownMenuItem>
+										<span>Log out</span>
+										<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</a>
+					</div>
+				</div>
 			</div>
 			<div class="h-16 px-6 flex justify-between items-center border-b">
 				<Logo class="w-72" />
 				<div class="flex items-center">
 					<NavigationMenu>
 						<NavigationMenuList>
-							<NavigationMenuItem>
-								<NavigationMenuTrigger>Paintings</NavigationMenuTrigger>
+							<NavigationMenuItem
+								><router-link to="/product"> <NavigationMenuTrigger> Artwork</NavigationMenuTrigger></router-link>
 								<NavigationMenuContent>
 									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
 										<li class="row-span-3">
@@ -92,43 +162,6 @@ onMounted(async () => {
 												>
 													<img
 														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/ed8944107807709.5faf55c2affa5.jpg"
-														class="h-full w-full"
-													/>
-												</a>
-											</NavigationMenuLink>
-										</li>
-										<!-- <ListItem
-											v-for="component in components"
-											:key="component.title"
-											:title="component.title"
-											:href="component.href"
-										>
-											{{ component.description }}
-										</ListItem> -->
-										<li class="grid gap-3 p-4 md:grid-cols-4">
-											<ListItem
-												v-for="component in components"
-												:key="component.title"
-												:title="component.title"
-												:href="component.href"
-											>
-											</ListItem>
-										</li>
-									</ul>
-								</NavigationMenuContent>
-							</NavigationMenuItem>
-							<NavigationMenuItem>
-								<NavigationMenuTrigger> <router-link to="/product">Photography</router-link></NavigationMenuTrigger>
-								<NavigationMenuContent>
-									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
-										<li class="row-span-3">
-											<NavigationMenuLink as-child>
-												<a
-													class="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted no-underline outline-none focus:shadow-md"
-													href="/"
-												>
-													<img
-														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/e41338141446491.625444f8987e1.jpg"
 														class="h-full w-full"
 													/>
 												</a>
@@ -145,13 +178,12 @@ onMounted(async () => {
 											</ListItem>
 										</li>
 									</ul>
-								</NavigationMenuContent>
-							</NavigationMenuItem>
-							<NavigationMenuItem>
-								<NavigationMenuLink :class="navigationMenuTriggerStyle()">
-									<router-link to="/auction">Auction</router-link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
+								</NavigationMenuContent> </NavigationMenuItem
+							><router-link to="/auction">
+								<NavigationMenuItem>
+									<NavigationMenuLink :class="navigationMenuTriggerStyle()"> Auction </NavigationMenuLink>
+								</NavigationMenuItem></router-link
+							>
 						</NavigationMenuList>
 					</NavigationMenu>
 				</div>

@@ -48,7 +48,7 @@ const openWindow = (event: Event, auctionId: string) => {
 				<div class="-ml-5 min-h-80 flex flex-wrap content-stretch justify-start">
 					<div v-for="item in auctions" :key="item.auction_id" class="lg:w-1/3 sm:w-1/2 pt-0 pb-4 px-3">
 						<div class="block relative">
-							<RouterLink to="/">
+							<router-link :to="{name: 'auction-detail', params: {id: item.auction_id}}">
 								<div class="block w-full relative border pb-2/3">
 									<div class="absolute inset-0">
 										<div class="float-left text-center w-2/3 h-full border border-r block relative overflow-hidden">
@@ -76,7 +76,7 @@ const openWindow = (event: Event, auctionId: string) => {
 										</div>
 									</div>
 								</div>
-							</RouterLink>
+							</router-link>
 
 							<span
 								class="px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"

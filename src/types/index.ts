@@ -86,14 +86,14 @@ export type UserInfoData = {
 	id: string;
 	username: string;
 	userProfile: {
-		profile_id: number;
-		user_id: string;
+		profile_id: number | null;
+		user_id: string | null;
 		fullname: string | null;
 		phone: number | null;
 		email: string | null;
 		address: string | null;
-		avatar_url: string | null;
-	};
+		avatar_url: string;
+	} | null;
 };
 
 export type FilterType = Record<string, string[]>;
