@@ -299,15 +299,6 @@ const options = [
 				<div class="flex">
 					<div></div>
 					<div v-if="productDetail" class="overflow-hidden relative pt-8 mx-2">
-						<!-- <Accordion type="single" class="w-full" collapsible :default-value="defaultValue">
-										<AccordionItem v-for="item in accordionItems" :key="item.value" :value="item.value">
-											<AccordionTrigger>{{ item.title }}</AccordionTrigger>
-											<AccordionContent>
-												{{ item.content }}
-											</AccordionContent>
-										</AccordionItem>
-									</Accordion> -->
-
 						<div class="p-0 mb-8">
 							<h1 class="mb-2 text-gray-500 text-lg">Description</h1>
 							<span class="whitespace-pre-wrap m-0 relative left-0"
