@@ -13,7 +13,7 @@ import {Toaster} from '@/components/ui/toast';
 const {toast} = useToast();
 
 type PAYLOAD = {email: string; password: string};
-const form = ref<PAYLOAD>({email: 'admin3@admin.com', password: 'Nam123@'});
+const form = ref<PAYLOAD>({email: '', password: ''});
 const router = useRouter();
 const authStore = useAuthStore();
 const productStore = useProductStore();

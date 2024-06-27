@@ -48,7 +48,7 @@ onMounted(async () => {
 	await Promise.all([
 		fetchdetailauctions(),
 		fetchdetailproducts(),
-		websocketStore.connect('wss://bidding2024.group11tlu.uk/ws?userJoin=Nam&auctionId=2'),
+		websocketStore.connect(`wss://bidding2024.group11tlu.uk/ws?userJoin=Nam&auctionId=${auctionId}`),
 	]);
 	currentPrice.value = auctionDetail.value.start_price;
 });

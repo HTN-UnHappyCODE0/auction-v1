@@ -4,7 +4,6 @@ import Logo from '@/components/iconLogo.vue';
 import {Search} from 'lucide-vue-next';
 import {Input} from '@/components/ui/input';
 import ListItem from './ui/listItem.vue';
-
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -16,7 +15,7 @@ import {
 } from '@/components/ui/navigation-menu';
 import {useUserStore} from '@/stores/userStore';
 import {useGlobalLoader} from 'vue-global-loader';
-import {computed, onMounted} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {Button} from '@/components/ui/button';
 import {
 	DropdownMenu,
@@ -24,16 +23,19 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
-	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 	DropdownMenuShortcut,
+	DropdownMenuPortal,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import router from '@/router';
+
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
+const isAuthenticated = ref(); // Reactive reference for authentication state
 
 const fetchUserInfo = async () => {
 	try {
@@ -61,22 +63,34 @@ const components: {title: string; href: string}[] = [
 		title: 'Progress',
 		href: '/docs/primitives/progress',
 	},
-
 	{
 		title: 'Medium',
 		href: '/docs/primitives/scroll-area',
 	},
 ];
 
-onMounted(async () => {
-	await Promise.all([fetchUserInfo()]);
+onMounted(() => {
+	const tokens = localStorage.getItem('currentAuthTokens');
+	console.log(tokens);
+
+	if (tokens) {
+		isAuthenticated.value = true;
+		fetchUserInfo();
+	}
 });
+
+const logout = () => {
+	localStorage.removeItem('currentAuthTokens');
+	isAuthenticated.value = false;
+};
 </script>
+
 <template>
 	<div class="block">
 		<div class="relative z-10 w-full flex flex-col">
 			<div class="w-full h-11 flex items-center justify-end border-b">
-				<!-- <div>
+				<!-- Conditional Rendering Based on Authentication State -->
+				<div v-if="!isAuthenticated">
 					<RouterLink
 						to="/auth/login"
 						class="border-r-0 border-white px-3 text-base font-semibold border-r-black hover:underline hover:text-blue-800"
@@ -89,11 +103,11 @@ onMounted(async () => {
 					>
 						register
 					</RouterLink>
-				</div> -->
-				<div class="pr-5">
+				</div>
+				<div v-if="isAuthenticated" class="pr-5">
 					<div class="flex items-center">
-						<a class="flex items-center" href=""
-							><div class="w-10 h-10 rounded-full flex">
+						<a class="flex items-center" href="">
+							<div class="w-10 h-10 rounded-full flex">
 								<div class="absolute">
 									<div class="bg-inherit">
 										<img
@@ -117,13 +131,12 @@ onMounted(async () => {
 									<DropdownMenuLabel>My Account</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuGroup>
-										<router-link :to="{name: 'auction-detail', params: {id: 1}}"
-											><DropdownMenuItem>
+										<router-link :to="{name: 'auction-detail', params: {id: 1}}">
+											<DropdownMenuItem>
 												<span>Profile</span>
 												<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-											</DropdownMenuItem></router-link
-										>
-
+											</DropdownMenuItem>
+										</router-link>
 										<DropdownMenuItem>
 											<span>Bidding</span>
 											<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
@@ -133,11 +146,9 @@ onMounted(async () => {
 											<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
 										</DropdownMenuItem>
 									</DropdownMenuGroup>
-
 									<DropdownMenuSeparator />
-									<DropdownMenuItem>
+									<DropdownMenuItem @click="logout">
 										<span>Log out</span>
-										<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
@@ -145,13 +156,16 @@ onMounted(async () => {
 					</div>
 				</div>
 			</div>
+
 			<div class="h-16 px-6 flex justify-between items-center border-b">
 				<Logo class="w-72" />
 				<div class="flex items-center">
 					<NavigationMenu>
 						<NavigationMenuList>
-							<NavigationMenuItem
-								><router-link to="/product"> <NavigationMenuTrigger> Artwork</NavigationMenuTrigger></router-link>
+							<NavigationMenuItem>
+								<router-link to="/product">
+									<NavigationMenuTrigger>Artwork</NavigationMenuTrigger>
+								</router-link>
 								<NavigationMenuContent>
 									<ul class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(1,.75fr)_minmax(0,1fr)]">
 										<li class="row-span-3">
@@ -161,29 +175,28 @@ onMounted(async () => {
 													href="/"
 												>
 													<img
-														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/ed8944107807709.5faf55c2affa5.jpg"
+														src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/ed8945107807709.5faf55c2affa5.jpg"
 														class="h-full w-full"
 													/>
 												</a>
 											</NavigationMenuLink>
 										</li>
-
 										<li class="grid gap-3 p-4 md:grid-cols-4">
 											<ListItem
 												v-for="component in components"
 												:key="component.title"
 												:title="component.title"
 												:href="component.href"
-											>
-											</ListItem>
+											/>
 										</li>
 									</ul>
-								</NavigationMenuContent> </NavigationMenuItem
-							><router-link to="/auction">
+								</NavigationMenuContent>
+							</NavigationMenuItem>
+							<router-link to="/auction">
 								<NavigationMenuItem>
-									<NavigationMenuLink :class="navigationMenuTriggerStyle()"> Auction </NavigationMenuLink>
-								</NavigationMenuItem></router-link
-							>
+									<NavigationMenuLink :class="navigationMenuTriggerStyle()">Auction</NavigationMenuLink>
+								</NavigationMenuItem>
+							</router-link>
 						</NavigationMenuList>
 					</NavigationMenu>
 				</div>
