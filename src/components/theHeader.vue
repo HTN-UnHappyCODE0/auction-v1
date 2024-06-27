@@ -35,8 +35,7 @@ import router from '@/router';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
-const isAuthenticated = ref(); // Reactive reference for authentication state
-
+const isAuthenticated = ref();
 const fetchUserInfo = async () => {
 	try {
 		displayLoader();
@@ -71,7 +70,6 @@ const components: {title: string; href: string}[] = [
 
 onMounted(() => {
 	const tokens = localStorage.getItem('currentAuthTokens');
-	console.log(tokens);
 
 	if (tokens) {
 		isAuthenticated.value = true;
@@ -131,7 +129,7 @@ const logout = () => {
 									<DropdownMenuLabel>My Account</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuGroup>
-										<router-link :to="{name: 'auction-detail', params: {id: 1}}">
+										<router-link :to="{name: 'user-profile', params: {id: 1}}">
 											<DropdownMenuItem>
 												<span>Profile</span>
 												<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
@@ -201,7 +199,7 @@ const logout = () => {
 					</NavigationMenu>
 				</div>
 				<div class="relative w-72 max-w-sm items-center">
-					<Input id="search" type="text" placeholder="Search..." class="pl-10" />
+					<Input id="search1" type="text" placeholder="Search..." class="pl-10" />
 					<span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
 						<Search class="size-6 text-muted-foreground" />
 					</span>

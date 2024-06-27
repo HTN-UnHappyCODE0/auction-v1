@@ -14,7 +14,6 @@ export const useUserStore = defineStore('UserStore', {
 				try {
 					this.loading = true;
 					const {data} = await axios.get<UserInfoData>('/api/User/info');
-					console.log('user', data);
 
 					this.UserData = data;
 

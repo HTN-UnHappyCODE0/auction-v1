@@ -8,6 +8,7 @@ import {useProductStore} from '@/stores/productStore';
 import {computed, onMounted, ref, watch} from 'vue';
 import {useGlobalLoader} from 'vue-global-loader';
 import {useRoute} from 'vue-router';
+import {useUserStore} from '@/stores/userStore';
 import {watchOnce} from '@vueuse/core';
 import {Carousel, type CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from '@/components/ui/carousel';
 import {Card, CardContent} from '@/components/ui/card';
@@ -19,6 +20,19 @@ const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const auctionId = route.params.id as string;
 const currentPrice = ref<number>(0);
 const websocketStore = useWebSocketStore();
+const userStore = useUserStore();
+const isAuthenticated = ref(); // Reactive reference for authentication state
+
+const fetchUserInfo = async () => {
+	try {
+		displayLoader();
+		await userStore.getUserInfo();
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
 
 const fetchdetailauctions = async () => {
 	try {
@@ -43,14 +57,33 @@ const fetchdetailproducts = async () => {
 
 const productDetail = computed(() => productStore.ProductDetailData);
 const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
+const userinfo = computed(() => userStore.UserData);
 
 onMounted(async () => {
-	await Promise.all([
-		fetchdetailauctions(),
-		fetchdetailproducts(),
-		websocketStore.connect(`wss://bidding2024.group11tlu.uk/ws?userJoin=Nam&auctionId=${auctionId}`),
-	]);
+	const tokens = localStorage.getItem('currentAuthTokens');
+
+	if (tokens) {
+		isAuthenticated.value = true;
+		fetchUserInfo();
+	}
+	await Promise.all([fetchdetailauctions(), fetchdetailproducts()]);
 	currentPrice.value = auctionDetail.value.start_price;
+	watch(
+		userinfo,
+		async (newValue) => {
+			if (newValue && newValue.userProfile && newValue.userProfile.fullname) {
+				currentPrice.value = auctionDetail.value.start_price;
+				await Promise.all([
+					fetchdetailauctions(),
+					fetchdetailproducts(),
+					websocketStore.connect(
+						`wss://bidding2024.group11tlu.uk/ws?userJoin=${newValue.userProfile.fullname}&auctionId=${auctionId}`
+					),
+				]);
+			}
+		},
+		{immediate: true}
+	);
 });
 
 const incrementPrice = () => {
@@ -176,30 +209,6 @@ watch(latestCurrent, (newVal, oldVal) => {
 										</div>
 									</div>
 								</div>
-								<!-- <div v-for="index in 7" :key="index" class="item">
-									<div class="min-h-32 py-4 px-6 flex flex-col border-l-4 border-b bg-white opacity-50">
-										<div class="flex">
-											<div class="min-h-20 min-w-20 inline-flex items-center justify-center mr-4 relative">
-												<div class="absolute right-1 top-1 hidden"></div>
-												<img
-													:src="productDetail.productImages && productDetail.productImages[0]?.image_url"
-													alt="Image 1"
-													v-if="productDetail.productImages && productDetail.productImages[0]?.image_url"
-												/>
-											</div>
-											<div class="flex flex-col">
-												<span class="text-red-500">Live now</span>
-												<a href="#" class="overflow-hidden text-sm whitespace-normal mb-1 cursor-pointer">
-													{{ productDetail.product_name }}
-												</a>
-												<span class="flex items-center">
-													<span class="inline-flex items-center">10$</span>
-													<span class="">(bidding)</span>
-												</span>
-											</div>
-										</div>
-									</div>
-								</div> -->
 							</div>
 						</div>
 					</div>
@@ -264,14 +273,6 @@ watch(latestCurrent, (newVal, oldVal) => {
 								</div>
 
 								<div v-if="productDetail" class="overflow-hidden relative mt-8 pt-8 border-t mx-2">
-									<!-- <Accordion type="single" class="w-full" collapsible :default-value="defaultValue">
-										<AccordionItem v-for="item in accordionItems" :key="item.value" :value="item.value">
-											<AccordionTrigger>{{ item.title }}</AccordionTrigger>
-											<AccordionContent>
-												{{ item.content }}
-											</AccordionContent>
-										</AccordionItem>
-									</Accordion> -->
 									<h5 class="mb-4 font-semibold text-lg">Item Details</h5>
 									<div class="p-0 mb-8">
 										<h1 class="mb-2 text-gray-500 text-lg">Description</h1>

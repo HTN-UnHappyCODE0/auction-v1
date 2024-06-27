@@ -7,6 +7,7 @@ import {useAuctionStore} from '@/stores/auctionStore';
 import {convertCoin, price} from '@/components/func/convertCoin';
 import {useProductStore} from '@/stores/productStore';
 import moment from 'moment';
+import {useUserStore} from '@/stores/userStore';
 import {computed, onMounted, ref, watch} from 'vue';
 import {useGlobalLoader} from 'vue-global-loader';
 import {useRoute, RouterLink, useRouter} from 'vue-router';
@@ -24,6 +25,20 @@ const currentPrice = ref<number>(0);
 const websocketStore = useWebSocketStore();
 const formatDate = (date: any) => {
 	return moment(date).format('HH:mm - DD/MM/YYYY');
+};
+
+const userStore = useUserStore();
+const isAuthenticated = ref();
+
+const fetchUserInfo = async () => {
+	try {
+		displayLoader();
+		await userStore.getUserInfo();
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
 };
 
 const fetchdetailauctions = async () => {
@@ -49,14 +64,24 @@ const fetchdetailproducts = async () => {
 
 const productDetail = computed(() => productStore.ProductDetailData);
 const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
+const userinfo = computed(() => userStore.UserData);
 
 onMounted(async () => {
 	await Promise.all([
 		fetchdetailauctions(),
+
 		fetchdetailproducts(),
-		websocketStore.connect(`wss://bidding2024.group11tlu.uk/ws?userJoin=Nam&auctionId=${auctionId}`),
+		websocketStore.connect(
+			`wss://bidding2024.group11tlu.uk/ws?userJoin=${userinfo?.value?.userProfile?.fullname}&auctionId=${auctionId}`
+		),
 	]);
 	currentPrice.value = auctionDetail.value.start_price;
+	const tokens = localStorage.getItem('currentAuthTokens');
+
+	if (tokens) {
+		isAuthenticated.value = true;
+		fetchUserInfo();
+	}
 });
 
 const openWindow = (event: Event, auctionId: string) => {
