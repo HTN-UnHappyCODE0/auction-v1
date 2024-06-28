@@ -23,5 +23,19 @@ export const useUserStore = defineStore('UserStore', {
 				}
 			});
 		},
+		async updateUserInfo(data: UserInfoData) {
+			return new Promise<UserInfoData>(async (resolve, reject) => {
+				try {
+					this.loading = true;
+					const {data: resData} = await axios.put<UserInfoData>('/api/UserProfile');
+
+					this.UserData = resData;
+
+					resolve(resData);
+				} catch (error) {
+					reject(error);
+				}
+			});
+		},
 	},
 });

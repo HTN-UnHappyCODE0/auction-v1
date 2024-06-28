@@ -6,6 +6,7 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import CardProfile from './CardProfile.vue';
 </script>
 
 <template>
@@ -61,32 +62,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 				</Card>
 			</TabsContent>
 			<TabsContent value="profile">
-				<Card>
-					<CardHeader>
-						<CardTitle>profile</CardTitle>
-						<CardDescription> Make changes to your profile here. Click save when you're done. </CardDescription>
-					</CardHeader>
-					<CardContent class="space-y-2">
-						<div class="grid w-full max-w-sm items-center gap-1.5">
-							<Label for="picture">Picture</Label>
-							<div class="flex gap-4">
-								<Input id="picture" type="file" />
-								<Avatar>
-									<AvatarImage src="" alt="@radix-vue" />
-									<AvatarFallback>CN</AvatarFallback>
-								</Avatar>
-							</div>
-						</div>
-
-						<div class="space-y-1">
-							<Label for="username">Username</Label>
-							<Input id="username" default-value="@peduarte" />
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button>Save changes</Button>
-					</CardFooter>
-				</Card>
+				<CardProfile />
 			</TabsContent>
 			<TabsContent value="cart">
 				<Card>
