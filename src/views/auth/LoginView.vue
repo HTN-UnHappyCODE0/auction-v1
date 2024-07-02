@@ -21,15 +21,6 @@ const productStore = useProductStore();
 const onSubmit = async () => {
 	try {
 		await authStore.loginUser(form.value);
-		// toast({
-		// 	class: 'bg-green-500 text-white',
-		// 	title: 'Login Successful',
-		// 	description: 'You have successfully logged in!',
-		// 	type: 'background',
-		// });
-		// setTimeout(() => {
-		// 	router.push('/');
-		// }, 1000);
 
 		router.push('/');
 	} catch (error) {

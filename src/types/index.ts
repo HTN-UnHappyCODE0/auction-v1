@@ -86,14 +86,26 @@ export type UserInfoData = {
 	id: string;
 	username: string;
 	userProfile: {
-		profile_id: number | null;
-		user_id: string | null;
-		fullname: string | null;
-		phone: number | null;
-		email: string | null;
-		address: string | null;
+		profile_id: number;
+		user_id: string;
+		fullname: string;
+		phone: string;
+		email: string;
+		address: string;
 		avatar_url: string;
-	} | null;
+	};
 };
 
 export type FilterType = Record<string, string[]>;
+
+export type UserProfile = {
+	profile_id: number;
+	user_id: string;
+	fullname: string;
+	phone: string;
+	email: string;
+	address: string;
+	avatar_url: string;
+};
+
+export type WsToken = {socketToken: string};

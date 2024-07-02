@@ -1,3 +1,5 @@
+import axios from '@/plugins/axios';
+import type {WsToken} from '@/types';
 import {defineStore} from 'pinia';
 
 interface WebSocketMessage {
@@ -11,6 +13,7 @@ export const useWebSocketStore = defineStore('webSocket', {
 		isConnected: false as boolean,
 		messages: [] as string[],
 		currents: [] as number[],
+		WsToken: {} as WsToken,
 	}),
 	actions: {
 		connect(url: string) {
@@ -59,6 +62,21 @@ export const useWebSocketStore = defineStore('webSocket', {
 			if (message.CurrentPrice !== this.currents[this.currents.length - 1]) {
 				this.currents.push(message.CurrentPrice);
 			}
+		},
+
+		async generateToken() {
+			return new Promise<WsToken>(async (resolve, reject) => {
+				try {
+					const {data} = await axios.get<WsToken>('/generate-ws-token');
+
+					this.WsToken = data;
+					console.log('WsToken:', data);
+
+					resolve(data);
+				} catch (error) {
+					reject(error);
+				}
+			});
 		},
 	},
 });

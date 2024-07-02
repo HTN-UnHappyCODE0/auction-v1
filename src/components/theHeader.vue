@@ -160,7 +160,7 @@ const logout = () => {
 				<div class="flex items-center">
 					<NavigationMenu>
 						<NavigationMenuList>
-							<NavigationMenuItem>
+							<!-- <NavigationMenuItem>
 								<router-link to="/product">
 									<NavigationMenuTrigger>Artwork</NavigationMenuTrigger>
 								</router-link>
@@ -189,7 +189,10 @@ const logout = () => {
 										</li>
 									</ul>
 								</NavigationMenuContent>
-							</NavigationMenuItem>
+							</NavigationMenuItem> -->
+							<router-link to="/product">
+								<NavigationMenuLink :class="navigationMenuTriggerStyle()">Artwork</NavigationMenuLink>
+							</router-link>
 							<router-link to="/auction">
 								<NavigationMenuItem>
 									<NavigationMenuLink :class="navigationMenuTriggerStyle()">Auction</NavigationMenuLink>

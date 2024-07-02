@@ -7,62 +7,27 @@ import {Label} from '@/components/ui/label';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import CardProfile from './CardProfile.vue';
+import CardPassword from './CardPassword.vue';
 </script>
 
 <template>
 	<TheHeader />
 	<div class="flex justify-center items-center">
-		<Tabs default-value="account" class="w-[800px] mt-4">
-			<TabsList class="grid w-full grid-cols-4">
-				<TabsTrigger value="account"> Account </TabsTrigger>
-				<TabsTrigger value="password"> Password </TabsTrigger>
+		<Tabs default-value="profile" class="w-[600px] mt-4">
+			<TabsList class="grid w-full grid-cols-3">
 				<TabsTrigger value="profile"> Profile </TabsTrigger>
+				<TabsTrigger value="password"> Password </TabsTrigger>
 				<TabsTrigger value="cart"> Cart </TabsTrigger>
 			</TabsList>
-			<TabsContent value="account">
-				<Card>
-					<CardHeader>
-						<CardTitle>Account</CardTitle>
-						<CardDescription> Make changes to your account here. Click save when you're done. </CardDescription>
-					</CardHeader>
-					<CardContent class="space-y-2">
-						<div class="space-y-1">
-							<Label for="name">Name</Label>
-							<Input id="name" default-value="Pedro Duarte" />
-						</div>
-						<div class="space-y-1">
-							<Label for="username">Username</Label>
-							<Input id="username" default-value="@peduarte" />
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button>Save changes</Button>
-					</CardFooter>
+			<TabsContent value="profile">
+				<Card
+					><div><CardProfile /></div>
 				</Card>
 			</TabsContent>
 			<TabsContent value="password">
 				<Card>
-					<CardHeader>
-						<CardTitle>Password</CardTitle>
-						<CardDescription> Change your password here. After saving, you'll be logged out. </CardDescription>
-					</CardHeader>
-					<CardContent class="space-y-2">
-						<div class="space-y-1">
-							<Label for="current">Current password</Label>
-							<Input id="current" type="password" />
-						</div>
-						<div class="space-y-1">
-							<Label for="new">New password</Label>
-							<Input id="new" type="password" />
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button>Save password</Button>
-					</CardFooter>
+					<CardPassword />
 				</Card>
-			</TabsContent>
-			<TabsContent value="profile">
-				<CardProfile />
 			</TabsContent>
 			<TabsContent value="cart">
 				<Card>

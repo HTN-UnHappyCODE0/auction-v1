@@ -1,9 +1,10 @@
 <template>
+	<!-- vueimg -->
 	<div
 		ref="mainImageDropZoneRef"
-		class="rounded-lg h-40 flex items-center justify-center mt-2 transition-all overflow-hidden"
-		:class="{'animate-pulse ring-4 ring-teal-500 bg-teal-500 ring-opacity-20 ': isOverDropZone}"
-		@Click="open"
+		class="rounded-lg h-40 border flex items-center justify-center mt-2 transition-all overflow-hidden"
+		:class="{'animate-pulse ring-4 ring-teal-500 bg-teal-500 ring-opacity-20': isOverDropZone}"
+		@click="handleClick"
 	>
 		<div class="text-center cursor-pointer">
 			<p>Drag some file here</p>
@@ -11,15 +12,30 @@
 		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
 import {ref} from 'vue';
-import { useDropZone } from '@vueuse/core'';
-const isOverDropZone = ref();
+import {useDropZone, useFileDialog} from '@vueuse/core';
+
 const mainImageDropZoneRef = ref<HTMLDivElement>();
-const emit = defineEmits(['onDrop','onChange']);
+const emit = defineEmits(['onDrop', 'onChange']);
+
 function onDrop(files: File[] | null) {
-emit('onDrop', files);
+	emit('onDrop', files);
 }
-const {isOverDropZone} = useDropZone(mainImageDropZoneRef, {onDrop,});
+
+const props = defineProps<{multiple: boolean}>();
+const {isOverDropZone} = useDropZone(mainImageDropZoneRef, {onDrop});
+const {open, onChange} = useFileDialog({accept: 'image/*', multiple: props.multiple});
+
+onChange((files) => {
+	emit('onChange', files);
+});
+
+// Hàm wrapper cho sự kiện click
+function handleClick(event: MouseEvent) {
+	open();
+}
 </script>
-<style lang=""></style>
+
+<style></style>

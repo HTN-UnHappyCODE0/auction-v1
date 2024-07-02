@@ -21,6 +21,7 @@ const auctionId = route.params.id as string;
 const currentPrice = ref<number>(0);
 const websocketStore = useWebSocketStore();
 const userStore = useUserStore();
+
 const isAuthenticated = ref(); // Reactive reference for authentication state
 
 const fetchUserInfo = async () => {
@@ -44,10 +45,22 @@ const fetchdetailauctions = async () => {
 		destroyLoader();
 	}
 };
+
 const fetchdetailproducts = async () => {
 	try {
 		displayLoader();
 		await productStore.getProductDetail({id: auctionId});
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
+
+const fetchwstoken = async () => {
+	try {
+		displayLoader();
+		await websocketStore.generateToken();
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -66,20 +79,21 @@ onMounted(async () => {
 		isAuthenticated.value = true;
 		fetchUserInfo();
 	}
+
 	await Promise.all([fetchdetailauctions(), fetchdetailproducts()]);
 	currentPrice.value = auctionDetail.value.start_price;
+
 	watch(
 		userinfo,
 		async (newValue) => {
 			if (newValue && newValue.userProfile && newValue.userProfile.fullname) {
 				currentPrice.value = auctionDetail.value.start_price;
-				await Promise.all([
-					fetchdetailauctions(),
-					fetchdetailproducts(),
-					websocketStore.connect(
-						`wss://bidding2024.group11tlu.uk/ws?userJoin=${newValue.userProfile.fullname}&auctionId=${auctionId}`
-					),
-				]);
+
+				await fetchwstoken();
+
+				await websocketStore.connect(
+					`wss://bidding2024.group11tlu.uk/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
+				);
 			}
 		},
 		{immediate: true}
