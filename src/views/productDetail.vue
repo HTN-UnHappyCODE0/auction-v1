@@ -9,12 +9,16 @@ import {convertCoin} from '@/components/func/convertCoin';
 import {useGlobalLoader} from 'vue-global-loader';
 import {computed, onMounted, ref} from 'vue';
 import {watchOnce} from '@vueuse/core';
-const url = 'https://mir-s3-cdn-cf.behance.net/project_modules/fs/da4060189578019.65adf3d73f3f8.png';
+import {useOrderStore} from '@/stores/oderStore';
+import {Toaster} from '@/components/ui/toast';
+import {useToast} from '@/components/ui/toast/use-toast';
 
 const route = useRoute();
+const orderStore = useOrderStore();
 const productStore = useProductStore();
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const productId = route.params.id as string;
+const {toast} = useToast();
 const sizeAttribute = computed(() => {
 	return productDetail.value.productAttributes?.find((attribute) => attribute.attribute_name === 'Size')?.attribute_label || 'N/A';
 });
@@ -67,8 +71,26 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 	emblaMainApi.on('select', onSelect);
 	emblaMainApi.on('reInit', onSelect);
 });
+
+const handleBiddingClick = async () => {
+	try {
+		await orderStore.createOrder(Number(productId));
+		toast({
+			class: 'bg-green-500 text-white',
+			title: 'Toast successfully',
+			description: 'Bid successfully.',
+		});
+	} catch (error) {
+		toast({
+			class: 'bg-red-500 text-white',
+			title: 'Toast successfully',
+			description: 'Bid failed.',
+		});
+	}
+};
 </script>
 <template>
+	<Toaster />
 	<TheHeader />
 	<div class="w-full mx-auto max-w-screen-2xl flex-1">
 		<div class="px-10 pt-10">
@@ -228,6 +250,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
 						<button
 							type="button"
 							class="text-white bg-gray-950 hover:underline hover:bg-blue-600 text-base rounded-full px-5 py-2.5 me-2 mb-2"
+							@click="handleBiddingClick"
 						>
 							Bidding
 						</button>

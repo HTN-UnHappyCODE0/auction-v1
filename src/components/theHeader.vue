@@ -35,44 +35,25 @@ import router from '@/router';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
-const isAuthenticated = ref();
+const isAuthenticated = ref<boolean>(false);
+const userinfo = computed(() => userStore.UserData);
+
 const fetchUserInfo = async () => {
 	try {
 		displayLoader();
 		await userStore.getUserInfo();
+		isAuthenticated.value = true;
 	} catch (error) {
 		console.error(error);
+		isAuthenticated.value = false;
 	} finally {
 		destroyLoader();
 	}
 };
 
-const userinfo = computed(() => userStore.UserData);
-
-const components: {title: string; href: string}[] = [
-	{
-		title: 'Style',
-		href: '/api/Product/filter?styles=fine_art',
-	},
-	{
-		title: 'Subject',
-		href: '/docs/primitives/hover-card',
-	},
-	{
-		title: 'Progress',
-		href: '/docs/primitives/progress',
-	},
-	{
-		title: 'Medium',
-		href: '/docs/primitives/scroll-area',
-	},
-];
-
 onMounted(() => {
 	const tokens = localStorage.getItem('currentAuthTokens');
-
 	if (tokens) {
-		isAuthenticated.value = true;
 		fetchUserInfo();
 	}
 });
@@ -80,6 +61,7 @@ onMounted(() => {
 const logout = () => {
 	localStorage.removeItem('currentAuthTokens');
 	isAuthenticated.value = false;
+	router.push('/auth/login');
 };
 </script>
 

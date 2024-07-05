@@ -108,4 +108,55 @@ export type UserProfile = {
 	avatar_url: string;
 };
 
+export type OrderListData = {
+	user_id: string;
+	order_id: number;
+	status: number;
+	order_date: string;
+	order_detail_id: number;
+	order_detail: {
+		order_detail_id: number;
+		product_id: number;
+		order_id: number;
+		product: {
+			product_id: number;
+			category_id: number;
+			author_id: number;
+			product_name: string;
+			price: number;
+			description: string;
+			author: {
+				author_id: number;
+				author_name: string;
+			};
+			category: {
+				category_id: number;
+				category_name: string;
+				category_description: string;
+			};
+			productImages: productImages[];
+			tags: [
+				{
+					tag_id: number;
+					tag_name: string;
+				},
+			];
+			productAttributes: [];
+		};
+	};
+};
+
+export type productAttributes = {
+	product_id: number;
+	attribute_id: number;
+	attribute_name: string;
+	attribute_label: string;
+	attribute_value: string;
+};
+
+export type productImages = {
+	image_id: number;
+	product_id: number;
+	image_url: string;
+};
 export type WsToken = {socketToken: string};

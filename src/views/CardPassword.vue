@@ -5,7 +5,6 @@ import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {useUserStore} from '@/stores/userStore';
 import {ref} from 'vue';
-import {useGlobalLoader} from 'vue-global-loader';
 import {Toaster} from '@/components/ui/toast';
 import {useToast} from '@/components/ui/toast/use-toast';
 
@@ -20,7 +19,6 @@ const form = ref<PAYLOAD>({
 });
 const {toast} = useToast();
 
-const {displayLoader, destroyLoader} = useGlobalLoader();
 const userStore = useUserStore();
 
 const onSubmit = async () => {
