@@ -51,10 +51,21 @@ const fetchdetailauctions = async () => {
 		destroyLoader();
 	}
 };
-const fetchdetailproducts = async () => {
+const fetchdetailproducts = async (id: string) => {
 	try {
 		displayLoader();
-		await productStore.getProductDetail({id: auctionId});
+		await productStore.getProductDetail({id});
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
+
+const fetchwstoken = async () => {
+	try {
+		displayLoader();
+		await websocketStore.generateToken();
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -65,16 +76,34 @@ const fetchdetailproducts = async () => {
 const productDetail = computed(() => productStore.ProductDetailData);
 const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
 const userinfo = computed(() => userStore.UserData);
+const productId = computed(() => auctionDetail.value?.product_id);
 
 onMounted(async () => {
-	await Promise.all([
-		fetchdetailauctions(),
+	await fetchdetailauctions();
+	watch(
+		productId,
+		async (newProductId) => {
+			if (newProductId) {
+				await fetchdetailproducts(newProductId.toString());
+			}
+		},
+		{immediate: true}
+	);
+	watch(
+		userinfo,
+		async (newValue) => {
+			if (newValue && newValue.userProfile && newValue.userProfile.fullname) {
+				currentPrice.value = auctionDetail.value.start_price;
 
-		fetchdetailproducts(),
-		websocketStore.connect(
-			`wss://bidding2024.group11tlu.uk/ws?userJoin=${userinfo?.value?.userProfile?.fullname}&auctionId=${auctionId}`
-		),
-	]);
+				await fetchwstoken();
+
+				await websocketStore.connect(
+					`wss://bidding2024.group11tlu.uk/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
+				);
+			}
+		},
+		{immediate: true}
+	);
 	currentPrice.value = auctionDetail.value.start_price;
 	const tokens = localStorage.getItem('currentAuthTokens');
 
@@ -140,7 +169,7 @@ const options = [
 								class="max-w-full w-full max-h-full relative h-auto block align-middle"
 								style="z-index: 1"
 						/></a>
-						<span
+						<!-- <span
 							class="px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"
 							style="z-index: 2"
 							>LIVE
@@ -156,7 +185,7 @@ const options = [
 								/>
 							</svg>
 							356
-						</span>
+						</span> -->
 
 						<div class="w-full h-full pt-48 block absolute left-0" style="z-index: 6">
 							<div class="col-span-2 flex flex-col h-full relative bottom-0 overflow-hidden">
@@ -238,18 +267,18 @@ const options = [
 					<div class="py-8 px-6 h-full">
 						<div class="h-full max-w-full flex flex-col items-center text-center justify-start">
 							<RouterLink
-								to="/"
+								to=""
 								@click="(event: any) => openWindow(event, auctionId.toString())"
 								class="text-white font-semibold py-4 px-6 bg-red-700 mb-4 hover:bg-red-800 w-full rounded-lg text-sm me-2"
 							>
 								<span>ENTER LIVE AUCTION</span>
 							</RouterLink>
-							<button
+							<!-- <button
 								type="button"
 								class="text-red-700 font-semibold py-4 px-6 bg-white mb-4 hover:bg-slate-50 w-full border border-red-700 rounded-lg text-sm me-2"
 							>
 								ENTER LIVE AUCTION
-							</button>
+							</button> -->
 							<span class="text-center block text-sm leading-5 tracking-wider"
 								>You'll have to register before you can place bids in this auction. This auction has already started, so you
 								might want to hurry!</span

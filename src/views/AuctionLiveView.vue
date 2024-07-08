@@ -46,10 +46,10 @@ const fetchdetailauctions = async () => {
 	}
 };
 
-const fetchdetailproducts = async () => {
+const fetchdetailproducts = async (id: string) => {
 	try {
 		displayLoader();
-		await productStore.getProductDetail({id: auctionId});
+		await productStore.getProductDetail({id});
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -71,6 +71,7 @@ const fetchwstoken = async () => {
 const productDetail = computed(() => productStore.ProductDetailData);
 const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
 const userinfo = computed(() => userStore.UserData);
+const productId = computed(() => auctionDetail.value?.product_id);
 
 onMounted(async () => {
 	const tokens = localStorage.getItem('currentAuthTokens');
@@ -79,8 +80,17 @@ onMounted(async () => {
 		isAuthenticated.value = true;
 		fetchUserInfo();
 	}
+	await fetchdetailauctions();
+	watch(
+		productId,
+		async (newProductId) => {
+			if (newProductId) {
+				await fetchdetailproducts(newProductId.toString());
+			}
+		},
+		{immediate: true}
+	);
 
-	await Promise.all([fetchdetailauctions(), fetchdetailproducts()]);
 	currentPrice.value = auctionDetail.value.start_price;
 
 	watch(
@@ -184,7 +194,7 @@ watch(latestCurrent, (newVal, oldVal) => {
 					<h2>Bidhaus</h2>
 				</div>
 				<div class="border p-6 mb-4 bg-white">
-					<span class="text-base font-normal">548 of 1036 Lots Remaining</span>
+					<!-- <span class="text-base font-normal">548 of 1036 Lots Remaining</span> -->
 					<div class="w-full mt-1 bg-gray-200 -top-0 left-0 rounded-full h-2">
 						<div class="bg-gray-700 h-2 rounded-full" style="width: 10%"></div>
 					</div>

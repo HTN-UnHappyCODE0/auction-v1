@@ -40,6 +40,17 @@ export const useOrderStore = defineStore('orderStore', {
 				}
 			});
 		},
+		async deleteOrder(order_id: number) {
+			return new Promise<void>(async (resolve, reject) => {
+				try {
+					await axios.delete(`/api/Order/delete/${order_id}`);
+
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+		},
 	},
 });
 

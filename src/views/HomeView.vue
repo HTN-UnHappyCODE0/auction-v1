@@ -145,7 +145,8 @@ watch(latestCurrent, (newVal, oldVal) => {
 
 <template>
 	<TheHeader />
-	<div class="max-w-7xl mt-1 mx-auto h-screen">
+	Home
+	<!-- <div class="max-w-7xl mt-1 mx-auto h-screen">
 		<div class="h-full flex flex-row">
 			<section class="w-96 py-4 px-6 flex flex-col bg-gray-200">
 				<div class="p-6 mb-4 border bg-white">
@@ -283,5 +284,5 @@ watch(latestCurrent, (newVal, oldVal) => {
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
 </template>

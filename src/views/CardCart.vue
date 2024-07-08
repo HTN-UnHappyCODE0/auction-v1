@@ -13,26 +13,36 @@ import {onMounted} from 'vue';
 import {convertCoin} from '@/components/func/convertCoin';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
+
 const OrderStore = useOrderStore();
 console.log('order', OrderStore);
 
 const fetchOrderData = async () => {
 	try {
-		displayLoader();
 		await OrderStore.getAllOrder();
 	} catch (error) {
 		console.error(error);
 	} finally {
-		destroyLoader();
 	}
 };
 const totalPrice = computed(() => {
 	return orderData.value.reduce((total, item) => {
-		// Đảm bảo kiểu dữ liệu của price là number
 		const price = item?.order_detail?.product?.price ?? 0;
 		return total + price;
 	}, 0);
 });
+
+const handleDeleteOrder = async (orderId: number) => {
+	try {
+		displayLoader();
+		await OrderStore.deleteOrder(orderId);
+	} catch (error) {
+		console.error('Error deleting order:', error);
+	} finally {
+		fetchOrderData();
+		destroyLoader();
+	}
+};
 const tax = computed(() => {
 	return totalPrice.value * 0.25;
 });
@@ -72,7 +82,10 @@ onMounted(async () => {
 										<p class="text-base font-black leading-none text-gray-800">
 											{{ item?.order_detail?.product?.product_name }}
 										</p>
-										<button class="text-gray-500 hover:text-gray-900">
+										<button
+											@click="handleDeleteOrder(item?.order_id)"
+											class="text-gray-500 hover:text-gray-900 cursor-pointer"
+										>
 											<svg
 												class="w-4 h-4"
 												fill="currentColor"

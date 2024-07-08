@@ -21,6 +21,7 @@ export const useProductStore = defineStore('ProductStore', {
 		productData: {} as ProductData,
 		ProductDetailData: {} as ProductDetailData,
 		loading: false,
+		inputProductName: '',
 	}),
 
 	actions: {
@@ -61,6 +62,12 @@ export const useProductStore = defineStore('ProductStore', {
 					reject(error);
 				}
 			});
+		},
+		setInputProductName(productName: string) {
+			this.inputProductName = productName;
+		},
+		getInputProductName() {
+			return this.inputProductName;
 		},
 	},
 });

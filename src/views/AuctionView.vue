@@ -25,7 +25,7 @@ const fetchAuctions = async () => {
 	}
 };
 
-const auctions = computed(() => AuctionStore.AuctionData);
+const auctions = computed(() => AuctionStore?.AuctionData);
 onMounted(async () => {
 	await Promise.all([fetchAuctions()]);
 });
@@ -43,17 +43,33 @@ const openWindow = (event: Event, auctionId: string) => {
 <template>
 	<TheHeader />
 	<div class="w-full m-5">
+		<div class="px-6 flex flex-col items-center">
+			<div class="flex w-full items-center">
+				<h1 class="text-xl grow">Artwork For Bid</h1>
+				<div></div>
+			</div>
+			<hr class="my-6 w-full border-gray-200 sm:mx-auto lg:my-4" />
+			<div class="mt-4 mx-auto max-w-screen-2xl flex-col">
+				<div class="h-full">
+					<h1 class="max-w-xl break-all">
+						Welcome to Auction's auction site! Let's explore and participate in the auction of special products to contribute to
+						charitable activities. The opportunity to own unique and meaningful items awaits you!
+					</h1>
+				</div>
+			</div>
+			<hr class="my-6 w-full border-gray-200 sm:mx-auto lg:my-4" />
+		</div>
 		<div class="max-w-7xl mx-auto relative">
 			<div>
 				<div class="-ml-5 min-h-80 flex flex-wrap content-stretch justify-start">
-					<div v-for="item in auctions" :key="item.auction_id" class="lg:w-1/3 sm:w-1/2 pt-0 pb-4 px-3">
+					<div v-for="item in auctions?.items" :key="item.auction_id" class="lg:w-1/3 sm:w-1/2 pt-0 pb-4 px-3">
 						<div class="block relative">
 							<router-link :to="{name: 'auction-detail', params: {id: item.auction_id}}">
 								<div class="block w-full relative border pb-2/3">
 									<div class="absolute inset-0">
 										<div class="float-left text-center w-2/3 h-full border border-r block relative overflow-hidden">
 											<img
-												src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/da4060189578019.65adf3d73f3f8.png"
+												:src="item?.product?.productImages[1]?.image_url"
 												alt=""
 												class="max-w-full w-full h-full max-h-full absolute m-auto inset-0 block align-middle"
 											/>
@@ -78,7 +94,7 @@ const openWindow = (event: Event, auctionId: string) => {
 								</div>
 							</router-link>
 
-							<span
+							<!-- <span
 								class="px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"
 							>
 								LIVE
@@ -94,29 +110,29 @@ const openWindow = (event: Event, auctionId: string) => {
 									/>
 								</svg>
 								356
-							</span>
+							</span> -->
 							<div class="relative p-3 border border-t-0 flex flex-col">
 								<div class="w-full bg-gray-200 -top-0 left-0 rounded-full h-1 absolute">
-									<div class="bg-red-600 h-1 rounded-full" style="width: 80%"></div>
+									<!-- <div class="bg-red-600 h-1 rounded-full" style="width: 80%"></div> -->
 								</div>
 								<h4
 									class="text-base text-ellipsis overflow-hidden whitespace-nowrap text-left max-w-full h-6 font-normal tracking-wider"
 								>
-									<a href="">Interior Design - Fashionable Home Wholesale Collectible Louis Chanel Hermes +++</a>
+									{{ item?.product?.product_name }}
 								</h4>
 								<span class="flex h-6 justify-start items-center">
 									<div class="pr-4">
-										<span v-if="item.end_time == null" class="text-xs tracking-wide leading-4 text-gray-500">
-											Started : {{ formatDate(item.start_time) }}
-										</span>
-										<span v-if="item.end_time !== null" class="text-xs tracking-wide leading-4 text-gray-500">
+										<!-- <span v-if="item.end_time == null" class="text-xs tracking-wide leading-4 text-gray-500"> -->
+										Started : {{ formatDate(item.start_time) }}
+										<!-- </span> -->
+										<!-- <span v-if="item.end_time !== null" class="text-xs tracking-wide leading-4 text-gray-500">
 											Ends from : {{ formatDate(item.end_time) }}
-										</span>
+										</span> -->
 									</div>
 								</span>
 								<div class="h-6 flex justify-end items-center">
 									<RouterLink
-										to="/"
+										to=""
 										@click="(event: any) => openWindow(event, item.auction_id.toString())"
 										class="cursor-pointer items-center inline-flex text-red-500 hover:underline"
 									>

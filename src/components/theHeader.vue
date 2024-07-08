@@ -37,6 +37,24 @@ const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
 const isAuthenticated = ref<boolean>(false);
 const userinfo = computed(() => userStore.UserData);
+const inputproductname = ref('');
+import {useProductStore} from '@/stores/productStore';
+
+const ProductStore = useProductStore();
+
+const handleSearch = async () => {
+	try {
+		displayLoader();
+		if (inputproductname.value.trim() !== '') {
+			ProductStore.setInputProductName(inputproductname.value.trim());
+			router.push('/product');
+		}
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
 
 const fetchUserInfo = async () => {
 	try {
@@ -46,6 +64,19 @@ const fetchUserInfo = async () => {
 	} catch (error) {
 		console.error(error);
 		isAuthenticated.value = false;
+	} finally {
+		destroyLoader();
+	}
+};
+
+const fetchProducts = async () => {
+	try {
+		displayLoader();
+		await ProductStore.getProduct({
+			product_name: inputproductname.value,
+		});
+	} catch (error) {
+		console.error(error);
 	} finally {
 		destroyLoader();
 	}
@@ -184,7 +215,19 @@ const logout = () => {
 					</NavigationMenu>
 				</div>
 				<div class="relative w-72 max-w-sm items-center">
-					<Input id="search1" type="text" placeholder="Search..." class="pl-10" />
+					<Input
+						id="search1"
+						type="text"
+						placeholder="Search..."
+						class="pl-10"
+						v-model="inputproductname"
+						@keydown.enter="
+							handleSearch;
+							async () => {
+								await fetchProducts();
+							};
+						"
+					/>
 					<span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
 						<Search class="size-6 text-muted-foreground" />
 					</span>

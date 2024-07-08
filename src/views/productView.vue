@@ -32,6 +32,8 @@ const CategoryStore = useCategoryStore();
 const FilterStore = useFilterStore();
 const ProductStore = useProductStore();
 
+const productName = ProductStore.getInputProductName();
+
 const fetchcategories = async () => {
 	try {
 		displayLoader();
@@ -79,7 +81,7 @@ const categories = computed(() => CategoryStore.categoryData);
 const filters = computed(() => FilterStore.FilterData);
 
 const open = ref(false);
-const inputproductname = ref('');
+const inputproductname = ref(productName);
 const selectcategoryname = ref('');
 const selectedPriceRange = ref<string>('');
 
@@ -110,15 +112,16 @@ onMounted(async () => {
 	<div class="px-6 my-4">
 		<div class="px-6 flex flex-col items-center">
 			<div class="flex w-full items-center">
-				<h1 class="text-xl grow">Original Drawings For Sale</h1>
+				<h1 class="text-xl grow">Artwork For Sale</h1>
 				<div></div>
 			</div>
 			<hr class="my-6 w-full border-gray-200 sm:mx-auto lg:my-4" />
 			<div class="mt-4 mx-auto max-w-screen-2xl flex-col">
 				<div class="h-full">
 					<h1 class="max-w-xl break-all">
-						Choose from a wide-ranging selection of 74,623 original drawings and prints ranging in subject, style and media from
-						figurative to abstract, monochromatic to multicoloured, and charcoal to pencil.
+						Welcome to Auction's painting collection! Discover unique and inspiring works of art, carefully selected from
+						talented artists. Choose your favorite painting to decorate your living space and join hands to support charitable
+						activities.
 					</h1>
 				</div>
 			</div>
@@ -210,7 +213,7 @@ onMounted(async () => {
 							:style="'grid-row-end: span ' + item.productImages[0].image_grid + ';'"
 						>
 							<div class="w-80 inline-block relative">
-								<router-link to="/">
+								<router-link :to="{name: 'product-detail', params: {id: item.product_id}}">
 									<ZoomableImage :src="item.productImages[0].image_url" :figureId="'figure_' + item.product_id" />
 								</router-link>
 							</div>
