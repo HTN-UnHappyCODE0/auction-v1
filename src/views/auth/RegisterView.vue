@@ -76,9 +76,9 @@ const onSubmit = async () => {
 							<Button class="w-full" type="submit">Register</Button>
 							<p>
 								Have an account?
-								<RouterLink to="/auth/login" class="border-b border-gray-500 text-muted-foreground hover:text-primary">
+								<!-- <RouterLink to="/auth/login" class="border-b border-gray-500 text-muted-foreground hover:text-primary">
 									Login
-								</RouterLink>
+								</RouterLink> -->
 							</p>
 						</CardFooter>
 					</Card>

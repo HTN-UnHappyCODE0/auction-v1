@@ -44,6 +44,7 @@ export type ProductData = {
 		product_name: string;
 		price: number;
 		auther_id: string;
+		popularity: number;
 		description: string;
 		category: Category;
 		author: author;
@@ -160,3 +161,32 @@ export type productImages = {
 	image_url: string;
 };
 export type WsToken = {socketToken: string};
+
+export type AuctionAllData = {
+	page: number;
+	totalPage: number;
+	totalItem: number;
+	items: AuctionData[];
+};
+
+export type AuctionData = {
+	auction_id: number;
+	product_id: number;
+	start_price: number;
+	price_step: number;
+	duration: number;
+	start_time: string;
+	finished: true | false;
+	product: {
+		product_id: number;
+		product_name: string;
+		price: number;
+		auther_id: string;
+		description: string;
+		category: Category;
+		author: author;
+		productImages: ProductImages[];
+		tags: Tags[];
+		productAttributes: ProductAttributes[];
+	};
+};

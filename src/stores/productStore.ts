@@ -5,6 +5,7 @@ import {defineStore} from 'pinia';
 interface ProductFilterParams {
 	product_name?: string;
 	category_name?: string;
+	autherproductname?: string;
 	page?: number;
 	price?: string;
 	sizes?: string[];
@@ -19,6 +20,7 @@ interface ProductParams {
 export const useProductStore = defineStore('ProductStore', {
 	state: () => ({
 		productData: {} as ProductData,
+		ProductPopularity: {} as ProductData,
 		ProductDetailData: {} as ProductDetailData,
 		loading: false,
 		inputProductName: '',
@@ -47,6 +49,19 @@ export const useProductStore = defineStore('ProductStore', {
 			} finally {
 				this.loading = false;
 			}
+		},
+		async getProductPopularity() {
+			return new Promise<ProductData>(async (resolve, reject) => {
+				try {
+					const {data} = await axios.get<ProductData>('/api/Product/popularity/1');
+
+					this.ProductPopularity = data;
+
+					resolve(data);
+				} catch (error) {
+					reject(error);
+				}
+			});
 		},
 
 		async getProductDetail({id}: ProductParams) {

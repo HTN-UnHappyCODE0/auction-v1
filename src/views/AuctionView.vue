@@ -3,13 +3,22 @@ import {useAuctionStore} from '@/stores/auctionStore';
 import TheHeader from '../components/theHeader.vue';
 import {RouterLink, useRouter} from 'vue-router';
 import {useGlobalLoader} from 'vue-global-loader';
-import {computed, onMounted} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import moment from 'moment';
-
+import {
+	Pagination,
+	PaginationEllipsis,
+	PaginationFirst,
+	PaginationLast,
+	PaginationList,
+	PaginationListItem,
+	PaginationNext,
+	PaginationPrev,
+} from '@/components/ui/pagination';
 const AuctionStore = useAuctionStore();
 const {displayLoader, destroyLoader} = useGlobalLoader();
 const router = useRouter();
-
+const currentPage = ref(1);
 const formatDate = (date: any) => {
 	return moment(date).format('HH:mm - DD/MM/YYYY');
 };
@@ -23,6 +32,9 @@ const fetchAuctions = async () => {
 	} finally {
 		destroyLoader();
 	}
+};
+const calculateEndTime = (startTime: any, duration: number) => {
+	return moment(startTime).add(duration, 'minutes').format('HH:mm - DD/MM/YYYY');
 };
 
 const auctions = computed(() => AuctionStore?.AuctionData);
@@ -61,7 +73,7 @@ const openWindow = (event: Event, auctionId: string) => {
 		</div>
 		<div class="max-w-7xl mx-auto relative">
 			<div>
-				<div class="-ml-5 min-h-80 flex flex-wrap content-stretch justify-start">
+				<div class="ml-5 min-h-80 flex flex-wrap content-stretch justify-start">
 					<div v-for="item in auctions?.items" :key="item.auction_id" class="lg:w-1/3 sm:w-1/2 pt-0 pb-4 px-3">
 						<div class="block relative">
 							<router-link :to="{name: 'auction-detail', params: {id: item.auction_id}}">
@@ -94,7 +106,8 @@ const openWindow = (event: Event, auctionId: string) => {
 								</div>
 							</router-link>
 
-							<!-- <span
+							<span
+								v-if="item.finished == false"
 								class="px-2 h-6 inline-flex justify-center items-center bg-red-600 text-white absolute top-2 left-2 leading-5 tracking-wider font-normal"
 							>
 								LIVE
@@ -109,8 +122,7 @@ const openWindow = (event: Event, auctionId: string) => {
 										d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"
 									/>
 								</svg>
-								356
-							</span> -->
+							</span>
 							<div class="relative p-3 border border-t-0 flex flex-col">
 								<div class="w-full bg-gray-200 -top-0 left-0 rounded-full h-1 absolute">
 									<!-- <div class="bg-red-600 h-1 rounded-full" style="width: 80%"></div> -->
@@ -129,6 +141,9 @@ const openWindow = (event: Event, auctionId: string) => {
 											Ends from : {{ formatDate(item.end_time) }}
 										</span> -->
 									</div>
+								</span>
+								<span v-if="item.finished" class="flex h-6 justify-start items-center">
+									<div class="pr-4">Ended : {{ calculateEndTime(item.start_time, item.duration) }}</div>
 								</span>
 								<div class="h-6 flex justify-end items-center">
 									<RouterLink
@@ -153,6 +168,61 @@ const openWindow = (event: Event, auctionId: string) => {
 							</div>
 						</div>
 					</div>
+				</div>
+				<div class="mx-auto justify-center flex">
+					<Pagination v-slot="{page}" :total="auctions.totalPage" :items-per-page="15" :default-page="1">
+						<PaginationList v-slot="{items}" class="flex items-center gap-1">
+							<PaginationFirst
+								@click="
+									async () => {
+										currentPage = 1;
+										await fetchAuctions();
+									}
+								"
+							/>
+							<PaginationPrev
+								@click="
+									async () => {
+										currentPage = currentPage - 1;
+										await fetchAuctions();
+									}
+								"
+							/>
+							<template v-for="(item, index) in items">
+								<PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
+									<Button
+										class="w-10 h-10 p-0"
+										:variant="item.value === page ? 'default' : 'outline'"
+										@click="
+											async () => {
+												currentPage = item.value;
+												await fetchAuctions();
+											}
+										"
+									>
+										{{ item.value }}
+									</Button>
+								</PaginationListItem>
+								<PaginationEllipsis v-else :key="item.type" :index="index" />
+							</template>
+							<PaginationNext
+								@click="
+									async () => {
+										currentPage = currentPage + 1;
+										await fetchAuctions();
+									}
+								"
+							/>
+							<PaginationLast
+								@click="
+									async () => {
+										currentPage = auctions.totalPage;
+										await fetchAuctions();
+									}
+								"
+							/>
+						</PaginationList>
+					</Pagination>
 				</div>
 			</div>
 		</div>

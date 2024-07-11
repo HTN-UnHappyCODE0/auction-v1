@@ -22,6 +22,7 @@ const productStore = useProductStore();
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const auctionId = router.params.id as string;
 const currentPrice = ref<number>(0);
+const ProductStore = useProductStore();
 const websocketStore = useWebSocketStore();
 const formatDate = (date: any) => {
 	return moment(date).format('HH:mm - DD/MM/YYYY');
@@ -78,13 +79,29 @@ const auctionDetail = computed(() => AuctionStore.AuctionDetailData);
 const userinfo = computed(() => userStore.UserData);
 const productId = computed(() => auctionDetail.value?.product_id);
 
+const fetchProducts = async () => {
+	try {
+		displayLoader();
+		await ProductStore.getProduct({
+			category_name: productDetail?.value?.category?.category_name,
+		});
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
+
+const productWithSameCategory = computed(() => ProductStore.productData);
 onMounted(async () => {
 	await fetchdetailauctions();
+
 	watch(
 		productId,
 		async (newProductId) => {
 			if (newProductId) {
 				await fetchdetailproducts(newProductId.toString());
+				await fetchProducts();
 			}
 		},
 		{immediate: true}
@@ -97,8 +114,12 @@ onMounted(async () => {
 
 				await fetchwstoken();
 
+				// await websocketStore.connect(
+				// 	`wss://bidding2024.group11tlu.uk/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
+				// );
+
 				await websocketStore.connect(
-					`wss://bidding2024.group11tlu.uk/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
+					`http://localhost:5081/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
 				);
 			}
 		},
@@ -112,6 +133,9 @@ onMounted(async () => {
 		fetchUserInfo();
 	}
 });
+const calculateEndTime = (startTime: any, duration: number) => {
+	return moment(startTime).add(duration, 'minutes').format('HH:mm - DD/MM/YYYY');
+};
 
 const openWindow = (event: Event, auctionId: string) => {
 	event.preventDefault();
@@ -131,29 +155,6 @@ const scrollToAuctionDetails = () => {
 		});
 	}
 };
-const input2 = ref('');
-const options = [
-	{
-		value: 'Option1',
-		label: 'Option1',
-	},
-	{
-		value: 'Option2',
-		label: 'Option2',
-	},
-	{
-		value: 'Option3',
-		label: 'Option3',
-	},
-	{
-		value: 'Option4',
-		label: 'Option4',
-	},
-	{
-		value: 'Option5',
-		label: 'Option5',
-	},
-];
 </script>
 <template>
 	<TheHeader />
@@ -227,17 +228,15 @@ const options = [
 						<div class="flex flex-row justify-start pr-4 border-r">
 							<span class="text-sm text-gray-500 leading-3 tracking-wider"
 								><div class="pr-4">
-									<span v-if="auctionDetail.end_time == null" class="text-xs tracking-wide leading-4 text-gray-500">
-										Started : {{ formatDate(auctionDetail.start_time) }}
-									</span>
-									<span v-if="auctionDetail.end_time !== null" class="text-xs tracking-wide leading-4 text-gray-500">
-										Ends from : {{ formatDate(auctionDetail.end_time) }}
+									<span class="text-xs tracking-wide leading-4 text-gray-500">
+										Started : {{ formatDate(auctionDetail.start_time) }} - Ends from :
+										{{ calculateEndTime(auctionDetail.start_time, auctionDetail.duration) }}
 									</span>
 								</div></span
 							>
 						</div>
 						<div class="flex flex-row justify-start px-4 border-r">
-							<span class="text-sm text-gray-500 leading-3 tracking-wider">New York, NY, United States</span>
+							<span class="text-sm text-gray-500 leading-3 tracking-wider">{{ productDetail.author?.author_name }}</span>
 						</div>
 						<div class="flex flex-row justify-start pl-4">
 							<span
@@ -317,13 +316,17 @@ const options = [
 			</div>
 			<div class="">
 				<div class="grid grid-cols-4 gap-y-8 gap-x-6 justify-center w-full">
-					<div class="relative self-center overflow-hidden grid" v-for="(item, index) in 10" :key="index">
+					<div
+						class="relative self-center overflow-hidden grid"
+						v-for="(item, index) in productWithSameCategory.products"
+						:key="index"
+					>
 						<div class="grid relative max-w-full">
 							<div class="relative">
 								<a href=""
 									><div class="w-full relative min-w-32 max-w-full flex justify-center">
 										<img
-											src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/da4060189578019.65adf3d73f3f8.png"
+											:src="item?.productImages[0]?.image_url"
 											alt=""
 											class="w-full h-full block pointer-events-none"
 										/></div
@@ -331,7 +334,7 @@ const options = [
 							</div>
 							<a href="" class="flex items-center mt-3"
 								><span class="text-base leading-6 font-normal tracking-wider"
-									>0001L: Art Deco Ruby & Diamond Bracelet</span
+									>{{ item?.product_id }}: {{ item?.product_name }}</span
 								></a
 							>
 							<span class="text-sm leading-6 font-normal text-gray-500 tracking-wider"
@@ -340,7 +343,9 @@ const options = [
 							>
 							<span class="w-full flex mt-1 text-base font-semibold leading-6 tracking-wider"
 								><span class="flex items-center flex-wrap gap-x-1"
-									><span class="">Sold for <span class="inline items-center">US$36,000</span> </span></span
+									><span class=""
+										>Price: <span class="inline items-center">{{ item?.price }}</span>
+									</span></span
 								></span
 							>
 						</div>

@@ -102,7 +102,7 @@ onMounted(async () => {
 				await fetchwstoken();
 
 				await websocketStore.connect(
-					`wss://bidding2024.group11tlu.uk/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
+					`http://localhost:5081/ws?userId=${newValue.userProfile.user_id}&auctionId=${auctionId}&socketToken=${websocketStore.WsToken?.socketToken}`
 				);
 			}
 		},

@@ -45,8 +45,21 @@ const fetchdetailproducts = async () => {
 
 const productDetail = computed(() => productStore.ProductDetailData);
 
+const fetchProducts = async () => {
+	try {
+		displayLoader();
+		await productStore.getProduct({
+			autherproductname: productDetail?.value?.author?.author_name,
+		});
+	} catch (error) {
+		console.error(error);
+	} finally {
+		destroyLoader();
+	}
+};
 onMounted(async () => {
 	await Promise.all([fetchdetailproducts()]);
+	await fetchProducts();
 });
 
 const emblaMainApi = ref<CarouselApi>();
@@ -88,6 +101,8 @@ const handleBiddingClick = async () => {
 		});
 	}
 };
+
+const productWithSameCategory = computed(() => productStore.productData);
 </script>
 <template>
 	<Toaster />
@@ -266,20 +281,20 @@ const handleBiddingClick = async () => {
 			</div>
 			<div class="text-base leading-6 antialiased">
 				<div class="flex flex-row justify-between">
-					<div class="text-2xl leading-8 tracking-normal">Other works by Jean Jullien</div>
+					<div class="text-2xl leading-8 tracking-normal">Other works by {{ productDetail?.author?.author_name }}</div>
 					<router-link :to="{}" class="ml-5 flex-shrink-0 cursor-pointer"
 						><div class="leading-5 underline">View all</div></router-link
 					>
 				</div>
 				<div class="mt-5">
 					<ul class="my-8 mx-8 columns-3 lg:columns-3xs">
-						<li v-for="item of listProducts" :key="item.product_id" class="h-full">
+						<li v-for="(item, index) in productWithSameCategory.products" :key="item.product_id" class="h-full">
 							<router-link :to="{}">
 								<div class="group min-w-10 mb-5 relative">
 									<div class="w-full overflow-hidden rounded-md bg-white group-hover:opacity-75 lg:h-full">
 										<img
-											:src="item.image_url"
-											:alt="item.price"
+											:src="item?.productImages[0]?.image_url"
+											alt=""
 											class="h-full w-full object-cover object-center lg:h-full lg:w-full"
 										/>
 										<div class="mt-2">
@@ -290,7 +305,7 @@ const handleBiddingClick = async () => {
 												{{ item.description }}
 											</h4>
 											<h5 class="font-medium">
-												{{ item.price }}
+												Price: <span class="inline items-center">{{ convertCoin(item?.price) }} VND</span>
 											</h5>
 										</div>
 									</div>

@@ -5,6 +5,7 @@ import ZoomableImage from '../components/zoomImage.vue';
 import {Check, ChevronsUpDown} from 'lucide-vue-next';
 import {useGlobalLoader} from 'vue-global-loader';
 import {cn} from '../lib/utils';
+import {Search} from 'lucide-vue-next';
 import {Button} from '@/components/ui/button';
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '../components/ui/command';
 import {Popover, PopoverContent, PopoverTrigger} from '../components/ui/popover';
@@ -25,6 +26,7 @@ import {
 } from '@/components/ui/pagination';
 import type {FilterType} from '@/types';
 import {convertCoin} from '@/components/func/convertCoin';
+import {Input} from '@/components/ui/input';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const currentPage = ref(1);
@@ -61,6 +63,7 @@ const fetchProducts = async () => {
 		displayLoader();
 		await ProductStore.getProduct({
 			product_name: inputproductname.value,
+			autherproductname: autherproductname.value,
 			page: currentPage.value,
 			styles: filers.value.Style,
 			category_name: selectcategoryname.value,
@@ -82,6 +85,7 @@ const filters = computed(() => FilterStore.FilterData);
 
 const open = ref(false);
 const inputproductname = ref(productName);
+const autherproductname = ref('');
 const selectcategoryname = ref('');
 const selectedPriceRange = ref<string>('');
 
@@ -113,7 +117,23 @@ onMounted(async () => {
 		<div class="px-6 flex flex-col items-center">
 			<div class="flex w-full items-center">
 				<h1 class="text-xl grow">Artwork For Sale</h1>
-				<div></div>
+				<div class="relative w-72 max-w-sm items-center">
+					<Input
+						id="search1"
+						type="text"
+						placeholder="Search..."
+						class="pl-10"
+						v-model="inputproductname"
+						@keydown.enter="
+							async () => {
+								await fetchProducts();
+							}
+						"
+					/>
+					<span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+						<Search class="size-6 text-muted-foreground" />
+					</span>
+				</div>
 			</div>
 			<hr class="my-6 w-full border-gray-200 sm:mx-auto lg:my-4" />
 			<div class="mt-4 mx-auto max-w-screen-2xl flex-col">

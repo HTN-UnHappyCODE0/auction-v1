@@ -13,6 +13,7 @@ import {
 	NavigationMenuTrigger,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {useUserStore} from '@/stores/userStore';
 import {useGlobalLoader} from 'vue-global-loader';
 import {computed, onMounted, ref} from 'vue';
@@ -31,7 +32,10 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
-import router from '@/router';
+
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
+import {Toaster, useToast} from '@/components/ui/toast';
+import {Label} from '@/components/ui/label';
 
 const {displayLoader, destroyLoader, isLoading} = useGlobalLoader();
 const userStore = useUserStore();
@@ -39,22 +43,9 @@ const isAuthenticated = ref<boolean>(false);
 const userinfo = computed(() => userStore.UserData);
 const inputproductname = ref('');
 import {useProductStore} from '@/stores/productStore';
+import {useAuthStore} from '@/stores/authStore';
 
 const ProductStore = useProductStore();
-
-const handleSearch = async () => {
-	try {
-		displayLoader();
-		if (inputproductname.value.trim() !== '') {
-			ProductStore.setInputProductName(inputproductname.value.trim());
-			router.push('/product');
-		}
-	} catch (error) {
-		console.error(error);
-	} finally {
-		destroyLoader();
-	}
-};
 
 const fetchUserInfo = async () => {
 	try {
@@ -94,6 +85,28 @@ const logout = () => {
 	isAuthenticated.value = false;
 	router.push('/auth/login');
 };
+const {toast} = useToast();
+
+type PAYLOAD = {email: string; password: string};
+const form = ref<PAYLOAD>({email: '', password: ''});
+const router = useRouter();
+const authStore = useAuthStore();
+const productStore = useProductStore();
+
+const onSubmit = async () => {
+	try {
+		await authStore.loginUser(form.value);
+
+		router.push('/');
+	} catch (error) {
+		console.error(error);
+		toast({
+			class: 'bg-red-500 text-white',
+			title: 'Login Failed',
+			description: 'Invalid email or password. Please try again.',
+		});
+	}
+};
 </script>
 
 <template>
@@ -102,17 +115,46 @@ const logout = () => {
 			<div class="w-full h-11 flex items-center justify-end border-b">
 				<!-- Conditional Rendering Based on Authentication State -->
 				<div v-if="!isAuthenticated">
-					<RouterLink
-						to="/auth/login"
-						class="border-r-0 border-white px-3 text-base font-semibold border-r-black hover:underline hover:text-blue-800"
-					>
-						log in
-					</RouterLink>
+					<Dialog>
+						<DialogTrigger as-child>
+							<Button variant="link" class="hover:text-">log in </Button>
+						</DialogTrigger>
+						<DialogContent>
+							<form @submit.prevent="onSubmit">
+								<Card class="overflow-y-auto">
+									<CardHeader class="space-y-1">
+										<CardTitle class="text-2xl font-semibold">Login account</CardTitle>
+										<CardDescription>Login your account.</CardDescription>
+									</CardHeader>
+									<CardContent class="grid gap-4">
+										<div class="grid gap-2">
+											<Label for="email">Email</Label>
+											<Input id="email" type="email" placeholder="Email" v-model="form.email" />
+										</div>
+										<div class="grid gap-2">
+											<Label for="password">Password</Label>
+											<Input id="password" type="password" placeholder="Password" v-model="form.password" />
+										</div>
+									</CardContent>
+									<CardFooter class="flex-col space-y-2">
+										<Button class="w-full" type="submit">Login</Button>
+										<p>
+											Don't have an account?
+											<RouterLink
+												to="/auth/register"
+												class="border-b border-gray-500 text-muted-foreground hover:text-primary"
+												>Register</RouterLink
+											>
+										</p>
+									</CardFooter>
+								</Card>
+							</form>
+						</DialogContent>
+					</Dialog>
 					<RouterLink
 						to="/auth/register"
-						class="border-l-2 border-white px-3 text-base font-semibold border-l-black hover:underline hover:text-blue-800"
-					>
-						register
+						class="border-l-2 border-white px-4 py-2 text-sm font-semibold border-l-black hover:underline hover:text-blue-800"
+						>register
 					</RouterLink>
 				</div>
 				<div v-if="isAuthenticated" class="pr-5">
@@ -214,24 +256,7 @@ const logout = () => {
 						</NavigationMenuList>
 					</NavigationMenu>
 				</div>
-				<div class="relative w-72 max-w-sm items-center">
-					<Input
-						id="search1"
-						type="text"
-						placeholder="Search..."
-						class="pl-10"
-						v-model="inputproductname"
-						@keydown.enter="
-							handleSearch;
-							async () => {
-								await fetchProducts();
-							};
-						"
-					/>
-					<span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
-						<Search class="size-6 text-muted-foreground" />
-					</span>
-				</div>
+				<div class="relative w-72 max-w-sm items-center"></div>
 			</div>
 		</div>
 	</div>

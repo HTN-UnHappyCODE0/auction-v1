@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-	baseURL: 'https://bidding2024.group11tlu.uk',
+	baseURL: 'http://localhost:5081',
 });
 
 axiosInstance.interceptors.request.use((config) => {
